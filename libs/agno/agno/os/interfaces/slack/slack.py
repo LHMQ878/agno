@@ -27,6 +27,7 @@ class Slack(BaseInterface):
         prefix: str = "/slack",
         tags: Optional[List[str]] = None,
         reply_to_mentions_only: bool = True,
+        ambient_mode: bool = False,
         token: Optional[str] = None,
         signing_secret: Optional[str] = None,
         streaming: bool = True,
@@ -45,6 +46,7 @@ class Slack(BaseInterface):
         self.prefix = prefix
         self.tags = tags or ["Slack"]
         self.reply_to_mentions_only = reply_to_mentions_only
+        self.ambient_mode = ambient_mode
         self.token = token
         self.signing_secret = signing_secret
         self.streaming = streaming
@@ -67,6 +69,7 @@ class Slack(BaseInterface):
             team=self.team,
             workflow=self.workflow,
             reply_to_mentions_only=self.reply_to_mentions_only,
+            ambient_mode=self.ambient_mode,
             token=self.token,
             signing_secret=self.signing_secret,
             streaming=self.streaming,
