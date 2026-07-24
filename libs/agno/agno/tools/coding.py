@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from agno.exceptions import PathSecurityError
 from agno.tools import Toolkit
@@ -250,14 +250,6 @@ class CodingTools(Toolkit):
     # Shell operators that enable command chaining or substitution
     _DANGEROUS_PATTERNS: List[str] = ["&&", "||", ";", "|", "$(", "`", ">", ">>", "<"]
 
-    # Dangerous flags that enable arbitrary code execution
-    _DANGEROUS_FLAGS: Dict[str, List[str]] = {
-        "python": ["-c", "--command"],
-        "python3": ["-c", "--command"],
-        "pip": ["--install-option", "--global-option"],
-        "pip3": ["--install-option", "--global-option"],
-    }
-
     def _check_command(self, command: str) -> Optional[str]:
         """Check if a shell command is safe to execute.
 
@@ -287,12 +279,6 @@ class CodingTools(Toolkit):
             cmd_base = Path(cmd).name  # Handle /usr/bin/python -> python
             if cmd_base not in self.allowed_commands:
                 return f"Error: Command '{cmd_base}' is not in the allowed commands list."
-
-            # Check for dangerous flags that enable arbitrary code execution
-            dangerous_flags = self._DANGEROUS_FLAGS.get(cmd_base, [])
-            for token in tokens[1:]:
-                if token in dangerous_flags:
-                    return f"Error: Flag '{token}' is not allowed for '{cmd_base}' in restricted mode."
 
         for i, token in enumerate(tokens):
             # Skip the command itself (already validated by allowlist above)
