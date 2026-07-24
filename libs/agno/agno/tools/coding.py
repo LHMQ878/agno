@@ -130,9 +130,9 @@ class CodingTools(Toolkit):
         edit_file: bool = False,
         write_file: bool = False,
         run_shell: bool = False,
-        grep: bool = True,
-        find: bool = True,
-        ls: bool = True,
+        run_grep: bool = True,
+        run_find: bool = True,
+        run_ls: bool = True,
         instructions: Optional[str] = None,
         add_instructions: bool = True,
         all: bool = False,
@@ -151,9 +151,9 @@ class CodingTools(Toolkit):
             edit_file: Enable the edit_file tool.
             write_file: Enable the write_file tool.
             run_shell: Enable the run_shell tool.
-            grep: Enable the grep tool.
-            find: Enable the find tool.
-            ls: Enable the ls tool.
+            run_grep: Enable the grep tool.
+            run_find: Enable the find tool.
+            run_ls: Enable the ls tool.
             instructions: Custom instructions for the LLM. Uses defaults if None.
             add_instructions: Whether to add instructions to the agent's system message.
             all: Enable all tools regardless of individual flags.
@@ -184,11 +184,11 @@ class CodingTools(Toolkit):
             _enabled.append(("write_file", self.write_file))
         if all or run_shell:
             _enabled.append(("run_shell", self.run_shell))
-        if all or grep:
+        if all or run_grep:
             _enabled.append(("grep", self.grep))
-        if all or find:
+        if all or run_find:
             _enabled.append(("find", self.find))
-        if all or ls:
+        if all or run_ls:
             _enabled.append(("ls", self.ls))
 
         tool_names = [name for name, _ in _enabled]
