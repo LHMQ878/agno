@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from agno.agent import Agent
-from agno.tools.dalle import DalleTools
+from agno.tools.openai import OpenAITools
 from agno.utils.media import download_image
 
 # ---------------------------------------------------------------------------
@@ -11,28 +11,34 @@ from agno.utils.media import download_image
 # ---------------------------------------------------------------------------
 
 
-# Example 1: Basic DALL-E agent with all functions enabled
-agent = Agent(tools=[DalleTools(all=True)], name="DALL-E Image Generator")
+# Example 1: Basic image generation agent with all OpenAI tools enabled
+agent = Agent(tools=[OpenAITools(all=True)], name="Image Generator")
 
-# Example 2: Enable specific DALL-E functions
+# Example 2: Enable only image generation
 agent_specific = Agent(
     tools=[
-        DalleTools(
-            enable_create_image=True,
-            model="dall-e-3",
-            size="1024x1024",
-            quality="standard",
+        OpenAITools(
+            transcription=False,
+            speech_generation=False,
+            image_model="gpt-image-2",
+            image_size="1024x1024",
         )
     ],
-    name="Basic DALL-E Generator",
+    name="Basic Image Generator",
 )
 
-# Example 3: High-quality custom DALL-E generator
-custom_dalle = DalleTools(all=True, model="dall-e-3", size="1792x1024", quality="hd")
+# Example 3: High-quality custom image generator
+custom_openai = OpenAITools(
+    transcription=False,
+    speech_generation=False,
+    image_model="gpt-image-2",
+    image_size="1792x1024",
+    image_quality="hd",
+)
 
 agent_custom = Agent(
-    tools=[custom_dalle],
-    name="Custom DALL-E Generator",
+    tools=[custom_openai],
+    name="Custom Image Generator",
 )
 
 # Test basic generation

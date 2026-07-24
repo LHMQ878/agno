@@ -1,5 +1,5 @@
 from os import getenv
-from typing import Any, List, Literal, Optional, Union
+from typing import Callable, List, Literal, Optional, Union
 from uuid import uuid4
 
 from agno.agent import Agent
@@ -50,7 +50,7 @@ class OpenAITools(Toolkit):
         text_to_speech_voice: OpenAIVoice = "alloy",
         text_to_speech_model: OpenAITTSModel = "tts-1",
         text_to_speech_format: OpenAITTSFormat = "mp3",
-        image_model: Optional[str] = "dall-e-3",
+        image_model: Optional[str] = "gpt-image-2",
         image_quality: Optional[str] = None,
         image_size: Optional[Literal["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"]] = None,
         image_style: Optional[Literal["vivid", "natural"]] = None,
@@ -70,7 +70,7 @@ class OpenAITools(Toolkit):
         self.image_style = image_style
         self.image_size = image_size
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or transcription:
             tools.append(self.transcribe_audio)
         if all or image_generation:
