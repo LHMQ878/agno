@@ -165,11 +165,11 @@ class BrowserbaseTools(Toolkit):
         """Navigates to a URL.
 
         Args:
-            url (str): The URL to navigate to
-            connect_url (str, optional): The connection URL from an existing session
+            url: The URL to navigate to.
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            JSON string with navigation status
+            JSON with navigation status, title, and url.
         """
         try:
             self._initialize_browser(connect_url)
@@ -179,18 +179,18 @@ class BrowserbaseTools(Toolkit):
             return json.dumps(result)
         except Exception as e:
             self._cleanup()
-            raise e
+            return json.dumps({"error": f"Navigation failed: {e}"})
 
     def screenshot(self, path: str, full_page: bool = True, connect_url: Optional[str] = None) -> str:
         """Takes a screenshot of the current page.
 
         Args:
-            path (str): Where to save the screenshot
-            full_page (bool): Whether to capture the full page
-            connect_url (str, optional): The connection URL from an existing session
+            path: Where to save the screenshot.
+            full_page: Whether to capture the full page. Defaults to True.
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            JSON string confirming screenshot was saved
+            JSON with status and path.
         """
         try:
             self._initialize_browser(connect_url)
@@ -199,7 +199,7 @@ class BrowserbaseTools(Toolkit):
             return json.dumps({"status": "success", "path": path})
         except Exception as e:
             self._cleanup()
-            raise e
+            return json.dumps({"error": f"Screenshot failed: {e}"})
 
     def _extract_text_content(self, html: str) -> str:
         """Extract visible text content from HTML, removing scripts, styles, and tags.
@@ -247,15 +247,15 @@ class BrowserbaseTools(Toolkit):
         """Gets the content of the current page.
 
         Args:
-            connect_url (str, optional): The connection URL from an existing session
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            The page content (text-only if parse_html=True, otherwise raw HTML)
+            The page content (text-only if parse_html=True, otherwise raw HTML).
         """
         try:
             self._initialize_browser(connect_url)
             if not self._page:
-                return ""
+                return json.dumps({"error": "No page available"})
 
             raw_content = self._page.content()
 
@@ -267,7 +267,7 @@ class BrowserbaseTools(Toolkit):
             return self._truncate_content(content)
         except Exception as e:
             self._cleanup()
-            raise e
+            return json.dumps({"error": f"Failed to get page content: {e}"})
 
     def close_session(self) -> str:
         """Closes a browser session.
@@ -331,11 +331,11 @@ class BrowserbaseTools(Toolkit):
         """Navigates to a URL asynchronously.
 
         Args:
-            url (str): The URL to navigate to
-            connect_url (str, optional): The connection URL from an existing session
+            url: The URL to navigate to.
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            JSON string with navigation status
+            JSON with navigation status, title, and url.
         """
         try:
             await self._ainitialize_browser(connect_url)
@@ -346,18 +346,18 @@ class BrowserbaseTools(Toolkit):
             return json.dumps(result)
         except Exception as e:
             await self._acleanup()
-            raise e
+            return json.dumps({"error": f"Navigation failed: {e}"})
 
     async def ascreenshot(self, path: str, full_page: bool = True, connect_url: Optional[str] = None) -> str:
         """Takes a screenshot of the current page asynchronously.
 
         Args:
-            path (str): Where to save the screenshot
-            full_page (bool): Whether to capture the full page
-            connect_url (str, optional): The connection URL from an existing session
+            path: Where to save the screenshot.
+            full_page: Whether to capture the full page. Defaults to True.
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            JSON string confirming screenshot was saved
+            JSON with status and path.
         """
         try:
             await self._ainitialize_browser(connect_url)
@@ -366,21 +366,21 @@ class BrowserbaseTools(Toolkit):
             return json.dumps({"status": "success", "path": path})
         except Exception as e:
             await self._acleanup()
-            raise e
+            return json.dumps({"error": f"Screenshot failed: {e}"})
 
     async def aget_page_content(self, connect_url: Optional[str] = None) -> str:
         """Gets the content of the current page asynchronously.
 
         Args:
-            connect_url (str, optional): The connection URL from an existing session
+            connect_url: The connection URL from an existing session.
 
         Returns:
-            The page content (text-only if parse_html=True, otherwise raw HTML)
+            The page content (text-only if parse_html=True, otherwise raw HTML).
         """
         try:
             await self._ainitialize_browser(connect_url)
             if not self._async_page:
-                return ""
+                return json.dumps({"error": "No page available"})
 
             raw_content = await self._async_page.content()
 
@@ -392,7 +392,7 @@ class BrowserbaseTools(Toolkit):
             return self._truncate_content(content)
         except Exception as e:
             await self._acleanup()
-            raise e
+            return json.dumps({"error": f"Failed to get page content: {e}"})
 
     async def aclose_session(self) -> str:
         """Closes a browser session asynchronously.
