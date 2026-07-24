@@ -84,8 +84,7 @@ class DalleTools(Toolkit):
                 "quality": self.quality,
                 "size": self.size,
             }
-            # OpenAI removed the dall-e-3 'style' parameter from the images API
-            # (400 "Unknown parameter"); only forward it when explicitly set.
+            # OpenAI returns 400 "Unknown parameter" for style on dall-e-3
             if self.style is not None:
                 request_params["style"] = self.style
             response: ImagesResponse = client.images.generate(**request_params)
