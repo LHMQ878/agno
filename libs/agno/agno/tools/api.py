@@ -22,6 +22,7 @@ class CustomApiTools(Toolkit):
         verify_ssl: bool = True,
         timeout: int = 30,
         make_request: bool = True,
+        all: bool = False,
         **kwargs,
     ):
         self.base_url = base_url
@@ -33,7 +34,7 @@ class CustomApiTools(Toolkit):
         self.timeout = timeout
 
         tools: List[Any] = []
-        if make_request:
+        if all or make_request:
             tools.append(self.make_request)
 
         super().__init__(name="api_tools", tools=tools, **kwargs)
@@ -69,15 +70,15 @@ class CustomApiTools(Toolkit):
         """Make an HTTP request to the API.
 
         Args:
-            method (str): HTTP method (GET, POST, PUT, DELETE, PATCH)
-            endpoint (str): API endpoint (will be combined with base_url if set)
-            params (Optional[Dict[str, Any]]): Query parameters
-            data (Optional[Dict[str, Any]]): Form data to send
-            headers (Optional[Dict[str, str]]): Additional headers
-            json_data (Optional[Dict[str, Any]]): JSON data to send
+            endpoint: API endpoint (combined with base_url if set).
+            method: HTTP method (GET, POST, PUT, DELETE, PATCH).
+            params: Query parameters.
+            data: Form data to send.
+            headers: Additional headers.
+            json_data: JSON data to send.
 
         Returns:
-            str: JSON string containing response data or error message
+            JSON with status_code, headers, data, and optional error.
         """
         try:
             if self.base_url:
