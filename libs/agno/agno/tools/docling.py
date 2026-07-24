@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_debug, log_error
@@ -90,7 +90,7 @@ class DoclingTools(Toolkit):
         )
         self.max_chars = max_chars
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or convert_to_markdown:
             tools.append(self.convert_to_markdown)
         if all or convert_to_text:
@@ -125,14 +125,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to Markdown format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted Markdown content, or an error message if conversion fails.
+            Converted Markdown content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -154,14 +154,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to plain text format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted plain text content, or an error message if conversion fails.
+            Converted plain text content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -183,14 +183,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to HTML format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted HTML content, or an error message if conversion fails.
+            Converted HTML content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -212,14 +212,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to split-page HTML format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted split-page HTML content, or an error message if conversion fails.
+            Converted split-page HTML content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -241,14 +241,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to JSON format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted JSON content, or an error message if conversion fails.
+            Converted JSON content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -270,14 +270,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to YAML format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted YAML content, or an error message if conversion fails.
+            Converted YAML content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -299,14 +299,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to DocTags format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted DocTags content, or an error message if conversion fails.
+            Converted DocTags content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -328,14 +328,14 @@ class DoclingTools(Toolkit):
         """Convert a local file or URL to VTT format using Docling.
 
         Args:
-            source (str): Local file path or URL to the document.
-            headers (Optional[Dict[str, str]]): Optional HTTP headers used for URL fetching.
-            raises_on_error (bool): If True, raises conversion exceptions in Docling internals.
-            max_num_pages (Optional[int]): Maximum number of pages to process from the source.
-            max_file_size (Optional[int]): Maximum file size in bytes allowed for processing.
+            source: Local file path or URL to the document.
+            headers: Optional HTTP headers for URL fetching.
+            raises_on_error: If True, raises conversion exceptions.
+            max_num_pages: Maximum number of pages to process.
+            max_file_size: Maximum file size in bytes.
 
         Returns:
-            str: The converted VTT content, or an error message if conversion fails.
+            Converted VTT content or error JSON.
         """
         return self._convert_and_export(
             source,
@@ -353,16 +353,16 @@ class DoclingTools(Toolkit):
         output_format: str = "markdown",
         name: Optional[str] = None,
     ) -> str:
-        """Convert raw markdown or HTML string content using Docling convert_string.
+        """Convert raw markdown or HTML string content.
 
         Args:
-            content (str): Raw source content to convert.
-            source_format (str): Input content format, one of markdown, md, or html.
-            output_format (str): Export format used after conversion.
-            name (Optional[str]): Optional document name associated with this in-memory source.
+            content: Raw source content to convert.
+            source_format: Input format (markdown, md, or html).
+            output_format: Export format after conversion.
+            name: Optional document name for the in-memory source.
 
         Returns:
-            str: Converted content in the selected output format, or an error message if conversion fails.
+            Converted content or error JSON.
         """
         if not content:
             return json.dumps({"error": "No content provided"})
@@ -377,10 +377,10 @@ class DoclingTools(Toolkit):
             return json.dumps({"error": f"Error converting string content: {e}"})
 
     def list_supported_parsers(self) -> str:
-        """List all Docling-supported input parsers and active converter parser restrictions.
+        """List all supported input parsers and active restrictions.
 
         Returns:
-            str: A JSON payload with supported_input_parsers and active_allowed_parsers fields.
+            JSON with supported_input_parsers and active_allowed_parsers.
         """
         all_supported = sorted([input_format.name.lower() for input_format in InputFormat])
         converter_allowed_formats = getattr(self.converter, "allowed_formats", None)
