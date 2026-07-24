@@ -93,14 +93,13 @@ class BrightDataTools(Toolkit):
             raise Exception(f"Request failed: {e}")
 
     def scrape_as_markdown(self, url: str) -> str:
-        """
-        Scrape a webpage and return content in Markdown format.
+        """Scrape a webpage and return content in Markdown format.
 
         Args:
-            url (str): URL to scrape
+            url: URL to scrape.
 
         Returns:
-            str: Scraped content as Markdown
+            Scraped content as Markdown.
         """
         try:
             if not self.api_key:
@@ -123,15 +122,14 @@ class BrightDataTools(Toolkit):
             return f"Error scraping URL {url}: {e}"
 
     def get_screenshot(self, agent: Agent, url: str, output_path: str = "screenshot.png") -> ToolResult:
-        """
-        Capture a screenshot of a webpage
+        """Capture a screenshot of a webpage.
 
         Args:
-            url (str): URL to screenshot
-            output_path (str): Output path for the screenshot (not used, kept for compatibility)
+            url: URL to screenshot.
+            output_path: Output path for the screenshot (not used, kept for compatibility).
 
         Returns:
-            ToolResult: Contains the screenshot image or error message.
+            ToolResult containing the screenshot image or error message.
         """
         try:
             if not self.api_key:
@@ -184,18 +182,17 @@ class BrightDataTools(Toolkit):
         language: Optional[str] = None,
         country_code: Optional[str] = None,
     ) -> str:
-        """
-        Search using Google, Bing, or Yandex and return results in Markdown.
+        """Search using Google, Bing, or Yandex and return results in Markdown.
 
         Args:
-            query (str): Search query
-            engine (str): Search engine - 'google', 'bing', or 'yandex'
-            num_results (int): Number of results to return
-            language (Optional[str]): Two-letter language code
-            country_code (Optional[str]): Two-letter country code
+            query: Search query.
+            engine: Search engine - 'google', 'bing', or 'yandex'. Defaults to 'google'.
+            num_results: Number of results to return. Defaults to 10.
+            language: Two-letter language code.
+            country_code: Two-letter country code.
 
         Returns:
-            str: Search results as Markdown
+            Search results as Markdown.
         """
         try:
             if not self.api_key:
@@ -250,16 +247,15 @@ class BrightDataTools(Toolkit):
         url: str,
         num_of_reviews: Optional[int] = None,
     ) -> str:
-        """
-        Retrieve structured web data from various sources like LinkedIn, Amazon, Instagram, etc.
+        """Retrieve structured web data from various sources like LinkedIn, Amazon, Instagram, etc.
 
         Args:
-            source_type (str): Type of data source (e.g., 'linkedin_person_profile', 'amazon_product')
-            url (str): URL of the web resource to retrieve data from
-            num_of_reviews (Optional[int]): Number of reviews to retrieve
+            source_type: Type of data source (e.g., 'linkedin_person_profile', 'amazon_product').
+            url: URL of the web resource to retrieve data from.
+            num_of_reviews: Number of reviews to retrieve.
 
         Returns:
-            str: Structured data from the requested source as JSON
+            JSON with structured data from the requested source.
         """
         try:
             if not self.api_key:
