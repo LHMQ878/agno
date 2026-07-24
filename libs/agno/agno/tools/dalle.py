@@ -1,5 +1,5 @@
 from os import getenv
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 from uuid import uuid4
 
 from agno.media import Image
@@ -24,6 +24,7 @@ class DalleTools(Toolkit):
         style: Optional[Literal["vivid", "natural"]] = None,
         api_key: Optional[str] = None,
         create_image: bool = True,
+        all: bool = False,
         **kwargs,
     ):
         self.model = model
@@ -50,8 +51,8 @@ class DalleTools(Toolkit):
         if not self.api_key:
             log_error("OPENAI_API_KEY not set. Please set the OPENAI_API_KEY environment variable.")
 
-        tools: List[Any] = []
-        if create_image:
+        tools: List[Callable] = []
+        if all or create_image:
             tools.append(self.create_image)
 
         super().__init__(name="dalle", tools=tools, **kwargs)
@@ -62,13 +63,13 @@ class DalleTools(Toolkit):
         # - Add support for editing images
 
     def create_image(self, prompt: str) -> ToolResult:
-        """Use this function to generate an image for a prompt.
+        """Generate an image from a text description using DALL-E.
 
         Args:
-            prompt (str): A text description of the desired image.
+            prompt: A text description of the desired image.
 
         Returns:
-            ToolResult: Result containing the message and generated images.
+            ToolResult: Generated image URLs or error message.
         """
         if not self.api_key:
             return ToolResult(content="Please set the OPENAI_API_KEY")
