@@ -4,23 +4,20 @@ from agno.tools.websearch import WebSearchTools
 
 
 class DuckDuckGoTools(WebSearchTools):
-    """
-    DuckDuckGoTools is a convenience wrapper around WebSearchTools with the backend
-    defaulting to "duckduckgo".
+    """Convenience wrapper around WebSearchTools with backend defaulting to "duckduckgo".
 
     Args:
-        search (bool): Enable web search function.
-        news (bool): Enable news search function.
-        modifier (Optional[str]): A modifier to be prepended to search queries.
-        fixed_max_results (Optional[int]): A fixed number of maximum results.
-        proxy (Optional[str]): Proxy to be used for requests.
-        timeout (Optional[int]): The maximum number of seconds to wait for a response.
-        verify_ssl (bool): Whether to verify SSL certificates.
-        timelimit (Optional[str]): Time limit for search results. Valid values:
-            "d" (day), "w" (week), "m" (month), "y" (year).
-        region (Optional[str]): Region for search results (e.g., "us-en", "uk-en", "ru-ru").
-        backend (Optional[str]): Backend to use for searching (e.g., "api", "html", "lite").
-            Defaults to "duckduckgo".
+        search: Enable web search function.
+        news: Enable news search function.
+        modifier: Modifier to prepend to search queries.
+        fixed_max_results: Fixed number of maximum results.
+        proxy: Proxy for requests.
+        timeout: Maximum seconds to wait for a response.
+        verify_ssl: Whether to verify SSL certificates.
+        timelimit: Time limit for results ("d", "w", "m", "y").
+        region: Region for results (e.g., "us-en", "uk-en").
+        backend: Backend for searching. Defaults to "duckduckgo".
+        all: Enable all tools.
     """
 
     def __init__(
@@ -35,6 +32,7 @@ class DuckDuckGoTools(WebSearchTools):
         timelimit: Optional[Literal["d", "w", "m", "y"]] = None,
         region: Optional[str] = None,
         backend: Optional[str] = None,
+        all: bool = False,
         **kwargs,
     ):
         super().__init__(
@@ -48,6 +46,7 @@ class DuckDuckGoTools(WebSearchTools):
             verify_ssl=verify_ssl,
             timelimit=timelimit,
             region=region,
+            all=all,
             **kwargs,
         )
 
