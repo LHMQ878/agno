@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, List, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 from agno.exceptions import PathSecurityError
 from agno.tools import Toolkit
@@ -174,25 +174,29 @@ class CodingTools(Toolkit):
 
         atexit.register(self._cleanup_temp_files)
 
-        # Build the list of enabled tools (used for both registration and instructions)
-        _enabled: List[tuple] = []
+        tools: List[Callable] = []
+        tool_names: List[str] = []
         if all or read_file:
-            _enabled.append(("read_file", self.read_file))
+            tools.append(self.read_file)
+            tool_names.append("read_file")
         if all or edit_file:
-            _enabled.append(("edit_file", self.edit_file))
+            tools.append(self.edit_file)
+            tool_names.append("edit_file")
         if all or write_file:
-            _enabled.append(("write_file", self.write_file))
+            tools.append(self.write_file)
+            tool_names.append("write_file")
         if all or run_shell:
-            _enabled.append(("run_shell", self.run_shell))
+            tools.append(self.run_shell)
+            tool_names.append("run_shell")
         if all or run_grep:
-            _enabled.append(("grep", self.grep))
+            tools.append(self.grep)
+            tool_names.append("grep")
         if all or run_find:
-            _enabled.append(("find", self.find))
+            tools.append(self.find)
+            tool_names.append("find")
         if all or run_ls:
-            _enabled.append(("ls", self.ls))
-
-        tool_names = [name for name, _ in _enabled]
-        tools = [fn for _, fn in _enabled]
+            tools.append(self.ls)
+            tool_names.append("ls")
 
         if instructions is None:
             resolved_instructions = self._build_instructions(tool_names)
