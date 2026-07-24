@@ -97,14 +97,14 @@ class CartesiaTools(Toolkit):
         """Create a new voice localized to a different language.
 
         Args:
-            name (str): The desired name for the new localized voice.
-            description (str): The description for the new localized voice.
-            language (str): The target language code (e.g., 'fr', 'es').
-            original_speaker_gender (str): The gender of the original speaker ("male" or "female").
-            voice_id (optional): The ID of an existing voice to use as the base. If None, uses the default voice ID configured in the tool. Defaults to None.
+            name: The desired name for the new localized voice.
+            description: The description for the new localized voice.
+            language: The target language code (e.g., 'fr', 'es').
+            original_speaker_gender: The gender of the original speaker ("male" or "female").
+            voice_id: The ID of an existing voice to use as the base. Defaults to the configured default.
 
         Returns:
-            str: JSON string containing the information of the newly created localized voice, including its 'id'.
+            JSON with the newly created localized voice info including its id.
         """
         localize_voice_id = voice_id or self.default_voice_id
         log_debug(f"Using voice_id '{localize_voice_id}' for localization.")
@@ -133,14 +133,14 @@ class CartesiaTools(Toolkit):
         transcript: str,
         voice_id: Optional[str] = None,
     ) -> ToolResult:
-        """
-        Convert text to speech.
+        """Convert text to speech.
+
         Args:
-            transcript: The text to convert to speech
-            voice_id (optional): The ID of the voice to use for the text-to-speech. If None, uses the default voice ID configured in the tool. Defaults to None.
+            transcript: The text to convert to speech.
+            voice_id: The ID of the voice to use. Defaults to the configured default.
 
         Returns:
-            ToolResult: A ToolResult containing the generated audio or error message.
+            ToolResult containing the generated audio or error message.
         """
 
         try:
