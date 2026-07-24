@@ -2,70 +2,27 @@
 AgentQL Tools for scraping websites.
 
 Prerequisites:
-- Set the environment variable `AGENTQL_API_KEY` with your AgentQL API key.
-  You can obtain the API key from the AgentQL website:
-  https://agentql.com/
-- Run `playwright install` to install a browser extension for playwright.
-
-AgentQL will open up a browser instance (don't close it) and do scraping on the site.
+1. pip install agentql
+2. playwright install
+3. export AGENTQL_API_KEY=your_key  # from https://agentql.com/
 """
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
+from agno.models.openai import OpenAIResponses
 from agno.tools.agentql import AgentQLTools
 
-# ---------------------------------------------------------------------------
-# Create Agent
-# ---------------------------------------------------------------------------
-
-
-# Example 1: Enable specific AgentQL functions
+# Basic scraping
 agent = Agent(
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[
-        AgentQLTools(
-            enable_scrape_website=True,
-            enable_custom_scrape_website=False,
-            agentql_query="your_query_here",
-        )
-    ],
+    model=OpenAIResponses(id="gpt-4.1"),
+    tools=[AgentQLTools()],
 )
 
-# Example 2: Enable all AgentQL functions
-agent_all = Agent(
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[AgentQLTools(all=True, agentql_query="your_query_here")],
-)
-
-# Example 3: Custom query with specific function enabled
-custom_query = """
-{
-    title
-    text_content[]
-}
-"""
-
+# Custom query
+custom_query = "{ title text_content[] }"
 custom_agent = Agent(
-    model=OpenAIChat(id="gpt-4o"),
-    tools=[
-        AgentQLTools(
-            enable_scrape_website=True,
-            enable_custom_scrape_website=True,
-            agentql_query=custom_query,
-        )
-    ],
+    model=OpenAIResponses(id="gpt-4.1"),
+    tools=[AgentQLTools(agentql_query=custom_query, custom_scrape_website=True)],
 )
 
-# Test the agents
-
-# ---------------------------------------------------------------------------
-# Run Agent
-# ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    agent.print_response(
-        "Scrape the main content from https://docs.agno.com/introduction", markdown=True
-    )
-    custom_agent.print_response(
-        "Extract title and content from https://docs.agno.com/introduction",
-        markdown=True,
-    )
+    agent.print_response("Scrape https://docs.agno.com/introduction", markdown=True)
