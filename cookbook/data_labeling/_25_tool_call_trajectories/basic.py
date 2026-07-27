@@ -4,7 +4,7 @@ Tool Call Trajectories - Basic
 
 Schema-validated (query, tool call) pairs from real agno tool schemas. The
 JSON schemas are pulled straight from toolkits the framework actually runs
-(CalculatorTools to be executable later, DuckDuckGoTools schema-only), a
+(CalculatorTools to be executable later, WebSearchTools schema-only), a
 generator agent writes candidate pairs against them, and every pair is
 validated in pure code against the real schema: known tool, parseable JSON
 arguments, all required params present, no unknown params, primitive types
@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from agno.agent import Agent, RunOutput
 from agno.tools.calculator import CalculatorTools
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.websearch import WebSearchTools
 from pydantic import BaseModel, Field
 from rich.pretty import pprint
 
@@ -43,7 +43,7 @@ def toolkit_schemas(toolkit: Any, source: str) -> Dict[str, dict]:
 
 SCHEMAS: Dict[str, dict] = {
     **toolkit_schemas(CalculatorTools(), "agno.tools.calculator"),
-    **toolkit_schemas(DuckDuckGoTools(), "agno.tools.duckduckgo"),
+    **toolkit_schemas(WebSearchTools(backend="duckduckgo"), "agno.tools.duckduckgo"),
 }
 
 

@@ -8,7 +8,7 @@ Requirements:
 
 from agno.agent import Agent
 from agno.models.openrouter import OpenRouterResponses
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
@@ -16,7 +16,7 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 
 agent = Agent(
     model=OpenRouterResponses(id="openai/gpt-oss-20b", reasoning={"enabled": True}),
-    tools=[DuckDuckGoTools()],
+    tools=[WebSearchTools(backend="duckduckgo")],
     markdown=True,
 )
 

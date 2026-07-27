@@ -12,7 +12,7 @@ from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
 from agno.team.mode import TeamMode
 from agno.team.team import Team
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Members
@@ -22,7 +22,7 @@ web_researcher = Agent(
     name="Web Researcher",
     role="Searches the web for current information",
     model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[DuckDuckGoTools()],
+    tools=[WebSearchTools(backend="duckduckgo")],
     instructions=[
         "You are a web researcher.",
         "Use DuckDuckGo to search for current, relevant information.",

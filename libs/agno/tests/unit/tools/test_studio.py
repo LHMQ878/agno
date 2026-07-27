@@ -15,10 +15,10 @@ from agno.db.sqlite import SqliteDb
 from agno.models.openai import OpenAIResponses
 from agno.registry import Registry
 from agno.tools.calculator import CalculatorTools
-from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.function import Function
 from agno.tools.studio import StudioTool, StudioTools
 from agno.tools.toolkit import Toolkit
+from agno.tools.websearch import WebSearchTools
 
 # ----------------------------------------------------------------------
 # Fixtures
@@ -34,7 +34,7 @@ def db(tmp_path):
 def registry(db):
     return Registry(
         name="Test Registry",
-        tools=[DuckDuckGoTools(), CalculatorTools()],
+        tools=[WebSearchTools(backend="duckduckgo"), CalculatorTools()],
         models=[OpenAIResponses(id="gpt-5.4"), OpenAIResponses(id="gpt-5.5")],
         dbs=[db],
     )
@@ -173,7 +173,7 @@ class TestDiscovery:
         result = _loads(studio.list_tools())
         names = {t["name"] for t in result["tools"]}
         assert "calculator" in names
-        assert "websearch" in names  # DuckDuckGoTools registers as 'websearch'
+        assert "websearch" in names  # WebSearchTools registers as 'websearch'
         for t in result["tools"]:
             if t["name"] == "calculator":
                 assert "add" in t["functions"]

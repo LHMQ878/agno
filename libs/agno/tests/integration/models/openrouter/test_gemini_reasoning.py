@@ -41,11 +41,11 @@ def test_gemini_multi_turn_preserves_provider_data():
 
 def test_gemini_with_tools():
     """Test Gemini works correctly with tools enabled."""
-    from agno.tools.duckduckgo import DuckDuckGoTools
+    from agno.tools.websearch import WebSearchTools
 
     agent = Agent(
         model=OpenRouter(id="google/gemini-2.5-flash"),
-        tools=[DuckDuckGoTools()],
+        tools=[WebSearchTools(backend="duckduckgo")],
         db=InMemoryDb(),
         add_history_to_context=True,
         markdown=True,

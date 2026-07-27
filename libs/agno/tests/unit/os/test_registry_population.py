@@ -455,16 +455,16 @@ class TestPopulateRegistryComponentsToolDedup:
         # the same function names but different config. Rehydration is keyed by
         # function name globally, so only one instance can win; we make that the
         # first one walked (deterministic), and the later clash is ignored.
-        from agno.tools.duckduckgo import DuckDuckGoTools
+        from agno.tools.websearch import WebSearchTools
 
-        first = DuckDuckGoTools(fixed_max_results=3)
-        second = DuckDuckGoTools(fixed_max_results=99)
+        first = WebSearchTools(backend="duckduckgo", fixed_max_results=3)
+        second = WebSearchTools(backend="duckduckgo", fixed_max_results=99)
         a = Agent(name="A1", id="a1", tools=[first], telemetry=False)
         b = Agent(name="A2", id="a2", tools=[second], telemetry=False)
 
         os = AgentOS(agents=[a, b], telemetry=False)
 
-        kept = [t for t in os.registry.tools if isinstance(t, DuckDuckGoTools)]
+        kept = [t for t in os.registry.tools if isinstance(t, WebSearchTools)]
         assert len(kept) == 1 and kept[0] is first
         # The lookup stores the source Function; its entrypoint is bound to the kept instance
         assert os.registry._entrypoint_lookup["web_search"].entrypoint.__self__ is first

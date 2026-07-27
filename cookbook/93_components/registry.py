@@ -10,7 +10,7 @@ from agno.agent.agent import Agent, get_agent_by_id  # noqa: F401
 from agno.db.postgres import PostgresDb
 from agno.models.openai import OpenAIChat
 from agno.registry import Registry
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.websearch import WebSearchTools
 from pydantic import BaseModel
 
 # ---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ def sample_tool():
 registry = Registry(
     name="Agno Registry",
     description="Registry for Agno",
-    tools=[DuckDuckGoTools(), sample_tool],
+    tools=[WebSearchTools(backend="duckduckgo"), sample_tool],
     models=[OpenAIChat(id="gpt-5-mini")],
     dbs=[db],
     schemas=[BasicInputSchema, BasicOutputSchema, ComplexInputSchema],
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     agent = Agent(
         model=OpenAIChat(id="gpt-4o-mini"),
         db=db,
-        tools=[DuckDuckGoTools(), sample_tool],
+        tools=[WebSearchTools(backend="duckduckgo"), sample_tool],
         output_schema=BasicOutputSchema,
     )
     agent.save()

@@ -9,7 +9,7 @@ Requirements:
 
 from agno.agent import Agent
 from agno.models.ollama import OllamaResponses
-from agno.tools.duckduckgo import DuckDuckGoTools
+from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
@@ -17,7 +17,7 @@ from agno.tools.duckduckgo import DuckDuckGoTools
 
 agent = Agent(
     model=OllamaResponses(id="gpt-oss:20b"),
-    tools=[DuckDuckGoTools()],
+    tools=[WebSearchTools(backend="duckduckgo")],
     markdown=True,
 )
 

@@ -10,8 +10,8 @@ from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
 from agno.team.mode import TeamMode
 from agno.team.team import Team
-from agno.tools.duckduckgo import DuckDuckGoTools
 from agno.tools.hackernews import HackerNewsTools
+from agno.tools.websearch import WebSearchTools
 
 # ---------------------------------------------------------------------------
 # Tools
@@ -32,7 +32,7 @@ web_searcher = Agent(
     name="Web Searcher",
     role="Searches the web for general information",
     model=OpenAIResponses(id="gpt-5.2"),
-    tools=[DuckDuckGoTools()],
+    tools=[WebSearchTools(backend="duckduckgo")],
     instructions=[
         "You search the web for relevant information.",
         "Provide concise summaries with key facts.",
