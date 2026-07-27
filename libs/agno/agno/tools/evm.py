@@ -1,3 +1,4 @@
+import json
 from os import getenv
 from typing import Optional
 
@@ -22,6 +23,7 @@ class EvmTools(Toolkit):
         private_key: Optional[str] = None,
         rpc_url: Optional[str] = None,
         send_transaction: bool = True,
+        all: bool = False,
         **kwargs,
     ):
         """Initialize EVM tools for blockchain interactions.
@@ -52,7 +54,7 @@ class EvmTools(Toolkit):
         log_debug(f"Your wallet address is: {self.account.address}")
 
         tools = []
-        if send_transaction:
+        if send_transaction or all:
             tools.append(self.send_transaction)
 
         super().__init__(name="evm_tools", tools=tools, **kwargs)
@@ -118,11 +120,11 @@ class EvmTools(Toolkit):
             transaction_receipt: "TxReceipt" = self.web3_client.eth.wait_for_transaction_receipt(transaction_hash)
             if transaction_receipt.get("status") == 1:
                 log_debug(f"Transaction successful! Transaction hash: 0x{transaction_hash.hex()}")
-                return f"0x{transaction_hash.hex()}"
+                return json.dumps({"transaction_hash": f"0x{transaction_hash.hex()}"})
             else:
                 log_error("Transaction failed!")
-                raise Exception("Transaction failed!")
+                return json.dumps({"error": "Transaction failed"})
 
         except Exception as e:
             log_error(f"Error sending transaction: {str(e)}")
-            return f"error: {e}"
+            return json.dumps({"error": str(e)})

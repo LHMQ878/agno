@@ -1,8 +1,10 @@
 import json
+import smtplib
+from email.message import EmailMessage
 from typing import Optional
 
 from agno.tools import Toolkit
-from agno.utils.log import log_error, log_info, logger
+from agno.utils.log import log_info, logger
 
 
 class EmailTools(Toolkit):
@@ -13,6 +15,7 @@ class EmailTools(Toolkit):
         sender_email: Optional[str] = None,
         sender_passkey: Optional[str] = None,
         email_user: bool = True,
+        all: bool = False,
         **kwargs,
     ):
         self.receiver_email: Optional[str] = receiver_email
@@ -21,26 +24,21 @@ class EmailTools(Toolkit):
         self.sender_passkey: Optional[str] = sender_passkey
 
         tools = []
-        if email_user:
+        if email_user or all:
             tools.append(self.email_user)
 
-        # Call superclass with tools list
         super().__init__(name="email_tools", tools=tools, **kwargs)
 
-    def email_user(self, subject: str, body: str, **kwargs) -> str:
-        """Emails the user with the given subject and body.
+    def email_user(self, subject: str, body: str) -> str:
+        """Send an email to the configured receiver.
 
-        :param subject: The subject of the email.
-        :param body: The body of the email.
-        :return: "success" if the email was sent successfully, "error: [error message]" otherwise.
+        Args:
+            subject: The subject of the email.
+            body: The body of the email.
+
+        Returns:
+            JSON with status or error.
         """
-        try:
-            import smtplib
-            from email.message import EmailMessage
-        except ImportError as e:
-            log_error(f"`smtplib` not installed: {str(e)}")
-            raise
-
         if not self.receiver_email:
             return json.dumps({"error": "No receiver email provided"})
         if not self.sender_name:

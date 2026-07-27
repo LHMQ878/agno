@@ -1,7 +1,7 @@
 import json
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from os import getenv
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_debug, log_error, log_info, logger
@@ -95,7 +95,7 @@ class ExaTools(Toolkit):
         self.model: Optional[str] = model
         self.research_model: Literal["exa-research", "exa-research-pro"] = research_model
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or search:
             tools.append(self.search_exa)
         if all or get_contents:
@@ -139,17 +139,16 @@ class ExaTools(Toolkit):
         return json.dumps(exa_results_parsed, indent=4, ensure_ascii=False)
 
     def search_exa(self, query: str, num_results: int = 5, category: Optional[str] = None) -> str:
-        """Use this function to search the web using Exa for a query.
+        """Search the web using Exa.
 
         Args:
-            query (str): The query to search for.
-            num_results (int): Number of results to return. Defaults to 5.
-            category (Optional[str]): The category to filter search results.
-                Options are "company", "research paper", "news", "pdf", "github",
-                "tweet", "personal site", "linkedin profile", "financial report".
+            query: The query to search for.
+            num_results: Number of results to return. Defaults to 5.
+            category: Category filter (company, research paper, news, pdf, github,
+                tweet, personal site, linkedin profile, financial report).
 
         Returns:
-            str: The search results in JSON format.
+            JSON search results.
         """
         try:
             if self.show_results:
@@ -186,14 +185,13 @@ class ExaTools(Toolkit):
             return json.dumps({"error": str(e)})
 
     def get_contents(self, urls: list[str]) -> str:
-        """
-        Retrieve detailed content from specific URLs using the Exa API.
+        """Retrieve detailed content from specific URLs using Exa.
 
         Args:
-            urls (list(str)): A list of URLs from which to fetch content.
+            urls: List of URLs to fetch content from.
 
         Returns:
-            str: The search results in JSON format.
+            JSON with content results.
         """
 
         query_kwargs: Dict[str, Any] = {
@@ -221,15 +219,14 @@ class ExaTools(Toolkit):
             return json.dumps({"error": str(e)})
 
     def find_similar(self, url: str, num_results: int = 5) -> str:
-        """
-        Find similar links to a given URL using the Exa API.
+        """Find similar links to a given URL using Exa.
 
         Args:
-            url (str): The URL for which to find similar links.
-            num_results (int, optional): The number of similar links to return. Defaults to 5.
+            url: The URL to find similar links for.
+            num_results: Number of similar links to return. Defaults to 5.
 
         Returns:
-            str: The search results in JSON format.
+            JSON with similar results.
         """
 
         query_kwargs: Dict[str, Any] = {
@@ -264,14 +261,14 @@ class ExaTools(Toolkit):
             return json.dumps({"error": str(e)})
 
     def exa_answer(self, query: str, text: bool = False) -> str:
-        """
-        Get an LLM answer to a question informed by Exa search results.
+        """Get an LLM answer to a question informed by Exa search results.
 
         Args:
-            query (str): The question or query to answer.
-            text (bool): Include full text from citation. Default is False.
+            query: The question or query to answer.
+            text: Include full text from citation. Defaults to False.
+
         Returns:
-            str: The answer results in JSON format with both generated answer and sources.
+            JSON with answer and source citations.
         """
 
         if self.model and self.model not in ["exa", "exa-pro"]:
@@ -319,14 +316,14 @@ class ExaTools(Toolkit):
         instructions: str,
         output_schema: Optional[Dict[str, Any]] = None,
     ) -> str:
-        """
-        Perform deep research on a topic.
+        """Perform deep research on a topic.
 
         Args:
-            instructions (str): Research instructions.
-            output_schema (Optional[Dict[str, Any]]): JSON schema for structured output. If not provided, the API will auto-infer an appropriate schema.
+            instructions: Research instructions.
+            output_schema: JSON schema for structured output. Auto-infers if not provided.
+
         Returns:
-            str: JSON formatted research results including data and citations.
+            JSON research results with data and citations.
         """
         try:
             log_debug(f"Creating research task with instructions: {instructions}")
