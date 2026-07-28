@@ -29,6 +29,7 @@ class JinaReaderTools(Toolkit):
         search_query_content: bool = True,
         read_url: bool = True,
         search_query: bool = False,
+        all: bool = False,
         **kwargs,
     ):
         self.api_key = api_key or getenv("JINA_API_KEY")
@@ -42,9 +43,9 @@ class JinaReaderTools(Toolkit):
         )
 
         tools: List[Callable] = []
-        if read_url:
+        if all or read_url:
             tools.append(self.read_url)
-        if search_query:
+        if all or search_query:
             tools.append(self.search_query)
 
         super().__init__(name="jina_reader_tools", tools=tools, **kwargs)
