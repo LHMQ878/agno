@@ -52,6 +52,8 @@ class LinkupTools(Toolkit):
                 depth=depth or self.depth,  # type: ignore
                 output_type=output_type or self.output_type,  # type: ignore
             )
-            return response
+            if isinstance(response, str):
+                return response
+            return json.dumps(response)
         except Exception as e:
             return json.dumps({"error": str(e)})
