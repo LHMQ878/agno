@@ -1,4 +1,3 @@
-import json
 from typing import Callable, Dict, List
 
 from agno.tools import Toolkit
@@ -11,123 +10,18 @@ except ImportError:
 
 
 class PandasTools(Toolkit):
-    # Allowlist of safe pandas functions for creating dataframes
-    SAFE_CREATE_FUNCTIONS = frozenset(
-        {
-            "read_csv",
-            "read_json",
-            "read_excel",
-            "read_parquet",
-            "read_feather",
-            "read_orc",
-            "read_sql",
-            "read_sql_query",
-            "read_sql_table",
-            "read_html",
-            "read_xml",
-            "read_clipboard",
-            "read_fwf",
-            "read_table",
-            "DataFrame",
-            "json_normalize",
-        }
-    )
-
-    # Allowlist of safe dataframe operations
-    SAFE_OPERATIONS = frozenset(
-        {
-            "head",
-            "tail",
-            "info",
-            "describe",
-            "shape",
-            "columns",
-            "dtypes",
-            "index",
-            "values",
-            "to_string",
-            "to_dict",
-            "to_json",
-            "to_csv",
-            "to_markdown",
-            "to_html",
-            "count",
-            "sum",
-            "mean",
-            "median",
-            "std",
-            "var",
-            "min",
-            "max",
-            "abs",
-            "round",
-            "sort_values",
-            "sort_index",
-            "groupby",
-            "pivot",
-            "pivot_table",
-            "melt",
-            "merge",
-            "join",
-            "concat",
-            "drop",
-            "drop_duplicates",
-            "dropna",
-            "fillna",
-            "replace",
-            "rename",
-            "reset_index",
-            "set_index",
-            "transpose",
-            "T",
-            "loc",
-            "iloc",
-            "at",
-            "iat",
-            "query",
-            "filter",
-            "select_dtypes",
-            "sample",
-            "nlargest",
-            "nsmallest",
-            "unique",
-            "nunique",
-            "value_counts",
-            "isnull",
-            "isna",
-            "notna",
-            "notnull",
-            "any",
-            "all",
-            "corr",
-            "cov",
-            "cumsum",
-            "cumprod",
-            "cummax",
-            "cummin",
-            "diff",
-            "pct_change",
-            "rank",
-            "clip",
-            "between",
-            "isin",
-            "copy",
-            "astype",
-        }
-    )
-
     def __init__(
         self,
-        create_pandas_dataframe: bool = False,
-        run_dataframe_operation: bool = False,
+        create_pandas_dataframe: bool = True,
+        run_dataframe_operation: bool = True,
         all: bool = False,
         **kwargs,
     ):
         """Initialize Pandas toolkit for dataframe operations.
 
         Args:
-            create_pandas_dataframe: Enable the create_pandas_dataframe tool. Disabled by default (can load arbitrary files).
-            run_dataframe_operation: Enable the run_dataframe_operation tool. Disabled by default (runs operations).
+            create_pandas_dataframe: Enable the create_pandas_dataframe tool.
+            run_dataframe_operation: Enable the run_dataframe_operation tool.
             all: Enable all tools.
         """
         self.dataframes: Dict[str, pd.DataFrame] = {}
@@ -151,7 +45,7 @@ class PandasTools(Toolkit):
             function_parameters: Parameters to pass to the function.
 
         Returns:
-            JSON with dataframe_name on success or error message.
+            The dataframe name on success or error message.
 
         Example:
             create_pandas_dataframe("csv_data", "read_csv", {"filepath_or_buffer": "data.csv"})
@@ -162,24 +56,22 @@ class PandasTools(Toolkit):
             log_debug(f"With parameters: {function_parameters}")
 
             if dataframe_name in self.dataframes:
-                return json.dumps({"error": f"Dataframe already exists: {dataframe_name}"})
+                return f"Dataframe already exists: {dataframe_name}"
 
-            if create_using_function not in self.SAFE_CREATE_FUNCTIONS:
-                return json.dumps({"error": f"Function '{create_using_function}' not allowed. Use: {', '.join(sorted(self.SAFE_CREATE_FUNCTIONS))}"})
-
+            # Create the dataframe
             dataframe = getattr(pd, create_using_function)(**function_parameters)
             if dataframe is None:
-                return json.dumps({"error": f"Error creating dataframe: {dataframe_name}"})
+                return f"Error creating dataframe: {dataframe_name}"
             if not isinstance(dataframe, pd.DataFrame):
-                return json.dumps({"error": f"Error creating dataframe: {dataframe_name}"})
+                return f"Error creating dataframe: {dataframe_name}"
             if dataframe.empty:
-                return json.dumps({"error": f"Dataframe is empty: {dataframe_name}"})
+                return f"Dataframe is empty: {dataframe_name}"
             self.dataframes[dataframe_name] = dataframe
             log_debug(f"Created dataframe: {dataframe_name}")
-            return json.dumps({"dataframe_name": dataframe_name, "shape": list(dataframe.shape)})
+            return dataframe_name
         except Exception as e:
             logger.exception("Error creating dataframe")
-            return json.dumps({"error": f"Error creating dataframe: {e}"})
+            return f"Error creating dataframe: {e}"
 
     def run_dataframe_operation(self, dataframe_name: str, operation: str, operation_parameters: Dict[str, object]) -> str:
         """Run an operation on a dataframe.
@@ -190,7 +82,7 @@ class PandasTools(Toolkit):
             operation_parameters: Parameters to pass to the operation.
 
         Returns:
-            JSON with result or error message.
+            The result of the operation or error message.
 
         Example:
             run_dataframe_operation("csv_data", "head", {"n": 5})
@@ -200,22 +92,20 @@ class PandasTools(Toolkit):
             log_debug(f"On dataframe: {dataframe_name}")
             log_debug(f"With parameters: {operation_parameters}")
 
-            if operation not in self.SAFE_OPERATIONS:
-                return json.dumps({"error": f"Operation '{operation}' not allowed. Use: {', '.join(sorted(self.SAFE_OPERATIONS))}"})
-
+            # Get the dataframe
             dataframe = self.dataframes.get(dataframe_name)
-            if dataframe is None:
-                return json.dumps({"error": f"Dataframe '{dataframe_name}' not found"})
 
+            # Run the operation
             result = getattr(dataframe, operation)(**operation_parameters)
-            log_debug(f"Ran operation: {operation}")
 
+            log_debug(f"Ran operation: {operation}")
             try:
-                if hasattr(result, "to_string"):
-                    return json.dumps({"result": result.to_string()})
-                return json.dumps({"result": str(result)})
+                try:
+                    return result.to_string()
+                except AttributeError:
+                    return str(result)
             except Exception:
-                return json.dumps({"status": "success"})
+                return "Operation ran successfully"
         except Exception as e:
             logger.exception("Error running operation")
-            return json.dumps({"error": f"Error running operation: {e}"})
+            return f"Error running operation: {e}"
