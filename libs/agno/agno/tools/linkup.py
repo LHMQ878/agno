@@ -15,8 +15,8 @@ class LinkupTools(Toolkit):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        depth: Literal["standard", "deep"] = "standard",
-        output_type: Literal["sourcedAnswer", "searchResults"] = "searchResults",
+        depth: Literal["fast", "standard", "deep"] = "standard",
+        output_type: Literal["searchResults", "sourcedAnswer", "structured"] = "searchResults",
         web_search_with_linkup: bool = True,
         all: bool = False,
         **kwargs,
