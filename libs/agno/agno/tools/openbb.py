@@ -1,5 +1,5 @@
 import json
-from typing import Any, List, Literal, Optional
+from typing import Any, Callable, List, Literal, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_debug
@@ -23,12 +23,26 @@ class OpenBBTools(Toolkit):
         all: bool = False,
         **kwargs,
     ):
-        # OpenBB v4.x credentials are set via obb.user.credentials or user_settings.json
+        """OpenBB financial data tools for stock prices, company info, and news.
+
+        Requires `pip install openbb`. Credentials are configured via obb.user.credentials
+        or user_settings.json (see OpenBB docs).
+
+        Args:
+            obb: Custom OpenBB instance. Defaults to the global obb app.
+            provider: Data provider to use for API calls.
+            get_stock_price: Enable stock price lookup tool.
+            search_company_symbol: Enable company symbol search tool.
+            get_company_news: Enable company news tool.
+            get_company_profile: Enable company profile tool.
+            get_price_targets: Enable price targets tool.
+            all: Enable all tools regardless of individual flags.
+        """
         self.obb = obb or openbb_app
 
         self.provider: Literal["benzinga", "fmp", "intrinio", "polygon", "tiingo", "tmx", "yfinance"] = provider
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or get_stock_price:
             tools.append(self.get_stock_price)
         if all or search_company_symbol:
@@ -43,14 +57,13 @@ class OpenBBTools(Toolkit):
         super().__init__(name="openbb_tools", tools=tools, **kwargs)
 
     def get_stock_price(self, symbol: str) -> str:
-        """Use this function to get the current stock price for a stock symbol or list of symbols.
+        """Get the current stock price for a stock symbol or list of symbols.
 
         Args:
-            symbol (str): The stock symbol or list of stock symbols.
-                Eg: "AAPL" or "AAPL,MSFT,GOOGL"
+            symbol: The stock symbol or comma-separated list. E.g. "AAPL" or "AAPL,MSFT,GOOGL".
 
         Returns:
-          str: The current stock prices or error message.
+            JSON array of price data including last_price, high, low, open, close, volume.
         """
         try:
             log_debug(f"Fetching current price for {symbol}")
@@ -78,13 +91,13 @@ class OpenBBTools(Toolkit):
             return f"Error fetching current price for {symbol}: {e}"
 
     def search_company_symbol(self, company_name: str) -> str:
-        """Use this function to get a list of ticker symbols for a company.
+        """Search for ticker symbols by company name.
 
         Args:
-            company_name (str): The name of the company.
+            company_name: The name of the company to search for.
 
         Returns:
-            str: A JSON string containing the ticker symbols.
+            JSON array of matches with symbol and name fields.
         """
 
         log_debug(f"Search ticker for {company_name}")
@@ -97,14 +110,13 @@ class OpenBBTools(Toolkit):
         return json.dumps(clean_results, indent=2, default=str)
 
     def get_price_targets(self, symbol: str) -> str:
-        """Use this function to get consensus price target and recommendations for a stock symbol or list of symbols.
+        """Get consensus price target and recommendations for a stock symbol.
 
         Args:
-            symbol (str): The stock symbol or list of stock symbols.
-                Eg: "AAPL" or "AAPL,MSFT,GOOGL"
+            symbol: The stock symbol or comma-separated list. E.g. "AAPL" or "AAPL,MSFT,GOOGL".
 
         Returns:
-            str: JSON containing consensus price target and recommendations.
+            JSON array with consensus price targets and analyst recommendations.
         """
         try:
             log_debug(f"Fetching price targets for {symbol}")
@@ -114,15 +126,14 @@ class OpenBBTools(Toolkit):
             return f"Error fetching company news for {symbol}: {e}"
 
     def get_company_news(self, symbol: str, num_stories: int = 10) -> str:
-        """Use this function to get company news for a stock symbol or list of symbols.
+        """Get company news for a stock symbol.
 
         Args:
-            symbol (str): The stock symbol or list of stock symbols.
-                Eg: "AAPL" or "AAPL,MSFT,GOOGL"
-            num_stories (int): The number of news stories to return. Defaults to 10.
+            symbol: The stock symbol or comma-separated list. E.g. "AAPL" or "AAPL,MSFT,GOOGL".
+            num_stories: Maximum number of news stories to return.
 
         Returns:
-            str: JSON containing company news and press releases.
+            JSON array of news articles with title, date, text, and URL.
         """
         try:
             log_debug(f"Fetching news for {symbol}")
@@ -137,14 +148,13 @@ class OpenBBTools(Toolkit):
             return f"Error fetching company news for {symbol}: {e}"
 
     def get_company_profile(self, symbol: str) -> str:
-        """Use this function to get company profile and overview for a stock symbol or list of symbols.
+        """Get company profile and overview for a stock symbol.
 
         Args:
-            symbol (str): The stock symbol or list of stock symbols.
-                Eg: "AAPL" or "AAPL,MSFT,GOOGL"
+            symbol: The stock symbol or comma-separated list. E.g. "AAPL" or "AAPL,MSFT,GOOGL".
 
         Returns:
-            str: JSON containing company profile and overview.
+            JSON array with company profile including sector, industry, description.
         """
         try:
             log_debug(f"Fetching company profile for {symbol}")
