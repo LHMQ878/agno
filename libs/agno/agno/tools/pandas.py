@@ -73,7 +73,9 @@ class PandasTools(Toolkit):
             logger.exception("Error creating dataframe")
             return f"Error creating dataframe: {e}"
 
-    def run_dataframe_operation(self, dataframe_name: str, operation: str, operation_parameters: Dict[str, object]) -> str:
+    def run_dataframe_operation(
+        self, dataframe_name: str, operation: str, operation_parameters: Dict[str, object]
+    ) -> str:
         """Run an operation on a dataframe.
 
         Args:
