@@ -1,6 +1,6 @@
 import json
 from textwrap import dedent
-from typing import Any, List, Optional
+from typing import Callable, List, Optional
 
 from agno.knowledge.document import Document
 from agno.knowledge.knowledge import Knowledge
@@ -40,7 +40,7 @@ class KnowledgeTools(Toolkit):
         # The knowledge to search
         self.knowledge: Knowledge = knowledge
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or think:
             tools.append(self.think)
         if all or search:
@@ -66,7 +66,7 @@ class KnowledgeTools(Toolkit):
             thought: Your thought process and reasoning.
 
         Returns:
-            str: The full log of reasoning and the new thought.
+            Full log of reasoning and the new thought.
         """
         try:
             log_debug(f"Thought: {thought}")
@@ -100,7 +100,7 @@ class KnowledgeTools(Toolkit):
             query: The query to search the knowledge base for.
 
         Returns:
-            str: A string containing the response from the knowledge base.
+            JSON with relevant documents from the knowledge base.
         """
         try:
             log_debug(f"Searching knowledge base: {query}")
@@ -122,7 +122,7 @@ class KnowledgeTools(Toolkit):
             analysis: A thought to think about and log.
 
         Returns:
-            str: The full log of thoughts and the new thought.
+            Full log of analysis entries.
         """
         try:
             log_debug(f"Analysis: {analysis}")
