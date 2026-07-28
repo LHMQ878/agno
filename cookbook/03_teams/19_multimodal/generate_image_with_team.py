@@ -10,7 +10,7 @@ from typing import Iterator
 from agno.agent import Agent, RunOutputEvent
 from agno.models.openai import OpenAIResponses
 from agno.team import Team
-from agno.tools.models.openai import OpenAITools
+from agno.tools.openai import OpenAITools
 from agno.utils.common import dataclass_to_dict
 from rich.pretty import pprint
 

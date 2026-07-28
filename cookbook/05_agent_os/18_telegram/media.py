@@ -17,7 +17,7 @@ from agno.models.google import Gemini
 from agno.os import AgentOS
 from agno.os.interfaces.telegram import Telegram
 from agno.tools.eleven_labs import ElevenLabsTools
-from agno.tools.models.openai import OpenAITools
+from agno.tools.openai import OpenAITools
 
 # ---------------------------------------------------------------------------
 # Create Database
