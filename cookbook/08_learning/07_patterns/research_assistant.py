@@ -28,7 +28,7 @@ from agno.learn import (
     UserProfileConfig,
 )
 from agno.models.openai import OpenAIResponses
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
@@ -45,7 +45,7 @@ def create_research_assistant(user_id: str, session_id: str) -> Agent:
             "You are a research assistant. Search the web when asked about "
             "current topics. Keep responses focused and cite sources."
         ),
-        tools=[WebSearchTools(backend="duckduckgo")],
+        tools=[DuckDuckGoTools()],
         learning=LearningMachine(
             user_profile=UserProfileConfig(
                 mode=LearningMode.ALWAYS,

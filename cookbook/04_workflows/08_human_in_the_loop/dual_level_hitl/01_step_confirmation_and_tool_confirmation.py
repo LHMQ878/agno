@@ -20,7 +20,7 @@ from agno.run.workflow import (
 )
 from agno.tools import tool
 from agno.workflow.step import Step
-from agno.workflow.types import HumanReview, StepInput, StepOutput
+from agno.workflow.types import StepInput, StepOutput
 from agno.workflow.workflow import Workflow
 from rich.console import Console
 from rich.prompt import Prompt
@@ -62,10 +62,8 @@ workflow = Workflow(
         Step(
             name="send_alert",
             agent=alert_agent,
-            human_review=HumanReview(
-                requires_confirmation=True,
-                confirmation_message="This will send a weather alert. Proceed?",
-            ),
+            requires_confirmation=True,
+            confirmation_message="This will send a weather alert. Proceed?",
         ),
         Step(name="log", executor=log_result),
     ],

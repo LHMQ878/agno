@@ -28,7 +28,7 @@ from datetime import datetime
 
 from agno.agent import Agent
 from agno.models.anthropic import Claude, SystemPromptBlock
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 blocks = [
     # Static instructions, cached for 1 hour (2x cost but survives much longer)
@@ -60,7 +60,7 @@ agent = Agent(
         cache_tools=True,
         system_prompt_blocks=blocks,
     ),
-    tools=[WebSearchTools(backend="duckduckgo")],
+    tools=[DuckDuckGoTools()],
     markdown=True,
 )
 

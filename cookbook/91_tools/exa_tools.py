@@ -28,11 +28,11 @@ agent_all = Agent(
 agent_specific = Agent(
     tools=[
         ExaTools(
-            search=True,
-            answer=True,
-            get_contents=False,
-            find_similar=False,
-            research=False,
+            enable_search=True,
+            enable_answer=True,
+            enable_get_contents=False,
+            enable_find_similar=False,
+            enable_research=False,
             include_domains=["cnbc.com", "reuters.com", "bloomberg.com"],
             show_results=True,
             text=False,

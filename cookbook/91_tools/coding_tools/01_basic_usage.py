@@ -1,21 +1,21 @@
 """
-CodingTools: Read-Only by Default
-==================================
-CodingTools provides safe read-only exploration out of the box. Write and
-shell capabilities are opt-in for security.
+CodingTools: Minimal Tools for Coding Agents
+=============================================
+A single toolkit with 4 core tools (read, edit, write, shell) that lets
+an agent perform any coding task. Inspired by the Pi coding agent's
+philosophy: a small number of composable tools is more powerful than
+many specialized ones.
 
-Read-only tools (enabled by default):
+Core tools (enabled by default):
 - read_file: Read files with line numbers and pagination
-- run_grep: Search file contents
-- run_find: Search for files by glob pattern
-- run_ls: List directory contents
-
-Write tools (opt-in):
 - edit_file: Exact text find-and-replace with diff output
 - write_file: Create or overwrite files
 - run_shell: Execute shell commands with timeout
 
-Enable write tools with: CodingTools(edit_file=True, write_file=True, run_shell=True)
+Exploration tools (opt-in):
+- grep: Search file contents
+- find: Search for files by glob pattern
+- ls: List directory contents
 """
 
 from agno.agent import Agent

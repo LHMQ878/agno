@@ -22,7 +22,6 @@ from agno.run.workflow import (
     WorkflowCompletedEvent,
 )
 from agno.tools import tool
-from agno.workflow import HumanReview
 from agno.workflow.step import Step
 from agno.workflow.workflow import Workflow
 from rich.console import Console
@@ -63,18 +62,16 @@ workflow = Workflow(
         Step(
             name="book_travel",
             agent=travel_agent,
-            human_review=HumanReview(
-                requires_user_input=True,
-                user_input_message="Which city do you want to fly to?",
-                user_input_schema=[
-                    {
-                        "name": "destination",
-                        "field_type": "text",
-                        "description": "Destination city",
-                        "required": True,
-                    },
-                ],
-            ),
+            requires_user_input=True,
+            user_input_message="Which city do you want to fly to?",
+            user_input_schema=[
+                {
+                    "name": "destination",
+                    "field_type": "text",
+                    "description": "Destination city",
+                    "required": True,
+                },
+            ],
         ),
     ],
     telemetry=False,

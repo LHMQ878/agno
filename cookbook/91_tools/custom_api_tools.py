@@ -1,33 +1,44 @@
 """
-CustomApiTools - make HTTP requests to any API.
+Custom Api Tools
+=============================
 
-Args:
-    base_url: Base URL for API calls
-    username: Username for basic authentication
-    password: Password for basic authentication
-    api_key: API key for authentication
-    headers: Default headers to include in requests
-    verify_ssl: Whether to verify SSL certificates
-    timeout: Request timeout in seconds
+Demonstrates custom api tools.
 """
 
 from agno.agent import Agent
-from agno.models.openai import OpenAIResponses
 from agno.tools.api import CustomApiTools
 
-# Example 1: Basic usage
+# ---------------------------------------------------------------------------
+# Create Agent
+# ---------------------------------------------------------------------------
+
+
+"""
+Args:
+    base_url (Optional[str]): Base URL for API calls
+    username (Optional[str]): Username for basic authentication
+    password (Optional[str]): Password for basic authentication
+    api_key (Optional[str]): API key for authentication
+    headers (Optional[Dict[str, str]]): Default headers to include in requests
+    verify_ssl (bool): Whether to verify SSL certificates
+    timeout (int): Request timeout in seconds
+"""
+# Example 1: Enable specific API functions
 agent = Agent(
-    model=OpenAIResponses(id="gpt-4.1"),
-    tools=[CustomApiTools(base_url="https://dog.ceo/api")],
+    tools=[CustomApiTools(base_url="https://dog.ceo/api", enable_make_request=True)],
+    markdown=True,
 )
 
-# Example 2: Enable all functions
+# Example 2: Enable all API functions
 agent_all = Agent(
-    model=OpenAIResponses(id="gpt-4.1"),
     tools=[CustomApiTools(base_url="https://dog.ceo/api", all=True)],
+    markdown=True,
 )
 
+# ---------------------------------------------------------------------------
+# Run Agent
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
     agent.print_response(
-        'Make api calls to /breeds/image/random and /breeds/list/all to get a random dog image and list of dog breeds. Use method="GET" for both.'
+        'Make api calls to the following two different endpoints- /breeds/image/random and /breeds/list/all to get a random dog image and list of dog breeds respectively. Make sure that the method is "GET" for both the api calls.'
     )

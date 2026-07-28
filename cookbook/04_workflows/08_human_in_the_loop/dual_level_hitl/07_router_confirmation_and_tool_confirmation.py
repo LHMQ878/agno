@@ -26,7 +26,7 @@ from agno.run.workflow import (
 from agno.tools import tool
 from agno.workflow.router import Router
 from agno.workflow.step import Step
-from agno.workflow.types import HumanReview, StepInput
+from agno.workflow.types import StepInput
 from agno.workflow.workflow import Workflow
 from rich.console import Console
 from rich.prompt import Prompt
@@ -94,10 +94,8 @@ workflow = Workflow(
                 Step(name="scale", agent=scale_agent),
             ],
             selector=select_action,
-            human_review=HumanReview(
-                requires_confirmation=True,
-                confirmation_message="An ops action will be executed. Proceed?",
-            ),
+            requires_confirmation=True,
+            confirmation_message="An ops action will be executed. Proceed?",
         ),
     ],
     telemetry=False,

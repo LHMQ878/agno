@@ -9,7 +9,7 @@ import asyncio
 
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 from rich.pretty import pprint
 
 # ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ The report should be unbiased and factual.
 agent = Agent(
     model=OpenAIResponses(id="gpt-5-mini"),
     instructions=instructions,
-    tools=[WebSearchTools(backend="duckduckgo")],
+    tools=[DuckDuckGoTools()],
 )
 
 

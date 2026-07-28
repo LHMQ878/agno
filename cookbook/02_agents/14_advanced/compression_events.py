@@ -10,14 +10,14 @@ import asyncio
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
 from agno.run.agent import RunEvent
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
 # ---------------------------------------------------------------------------
 agent = Agent(
     model=OpenAIResponses(id="gpt-5-mini"),
-    tools=[WebSearchTools(backend="duckduckgo")],
+    tools=[DuckDuckGoTools()],
     description="Specialized in tracking competitor activities",
     instructions="Use the search tools and always use the latest information and data.",
     compress_tool_results=True,

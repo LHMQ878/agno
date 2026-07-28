@@ -29,7 +29,7 @@ from agno.run.workflow import (
 )
 from agno.tools import tool
 from agno.workflow.step import Step
-from agno.workflow.types import HumanReview, OnReject, StepInput, StepOutput
+from agno.workflow.types import OnReject, StepInput, StepOutput
 from agno.workflow.workflow import Workflow
 from rich.console import Console
 from rich.prompt import Prompt
@@ -113,42 +113,36 @@ workflow = Workflow(
         Step(
             name="gather_requirements",
             executor=gather_requirements,
-            human_review=HumanReview(
-                requires_user_input=True,
-                user_input_message="Provide project details:",
-                user_input_schema=[
-                    {
-                        "name": "project_name",
-                        "field_type": "text",
-                        "description": "Project name",
-                        "required": True,
-                    },
-                    {
-                        "name": "scope",
-                        "field_type": "text",
-                        "description": "Project scope",
-                        "required": True,
-                    },
-                ],
-            ),
+            requires_user_input=True,
+            user_input_message="Provide project details:",
+            user_input_schema=[
+                {
+                    "name": "project_name",
+                    "field_type": "text",
+                    "description": "Project name",
+                    "required": True,
+                },
+                {
+                    "name": "scope",
+                    "field_type": "text",
+                    "description": "Project scope",
+                    "required": True,
+                },
+            ],
         ),
         Step(
             name="generate_plan",
             agent=planner_agent,
-            human_review=HumanReview(
-                requires_confirmation=True,
-                confirmation_message="Ready to generate the project plan. Proceed?",
-            ),
+            requires_confirmation=True,
+            confirmation_message="Ready to generate the project plan. Proceed?",
         ),
         Step(
             name="review_plan",
             agent=reviewer_agent,
-            human_review=HumanReview(
-                requires_output_review=True,
-                output_review_message="Review the finalized plan before publishing.",
-                on_reject=OnReject.retry,
-                max_retries=2,
-            ),
+            requires_output_review=True,
+            output_review_message="Review the finalized plan before publishing.",
+            on_reject=OnReject.retry,
+            hitl_max_retries=2,
         ),
     ],
     telemetry=False,

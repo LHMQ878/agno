@@ -23,7 +23,7 @@ agent = Agent(
     user_id="test_user",
     session_id="test_session",
     db=db,
-    update_memory_on_run=True,
+    enable_user_memories=True,
     enable_session_summaries=True,
 )
 

@@ -7,7 +7,7 @@ Agent With Tools Quickstart.
 
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 # ---------------------------------------------------------------------------
 # Create Agent
@@ -15,7 +15,7 @@ from agno.tools.websearch import WebSearchTools
 agent = Agent(
     name="Tool-Enabled Agent",
     model=OpenAIResponses(id="gpt-5.2"),
-    tools=[WebSearchTools(backend="duckduckgo")],
+    tools=[DuckDuckGoTools()],
 )
 
 # ---------------------------------------------------------------------------

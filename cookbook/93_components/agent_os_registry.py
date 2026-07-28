@@ -13,7 +13,7 @@ from agno.models.openai import OpenAIChat
 from agno.os import AgentOS
 from agno.registry import Registry
 from agno.tools.calculator import CalculatorTools
-from agno.tools.websearch import WebSearchTools
+from agno.tools.duckduckgo import DuckDuckGoTools
 
 # ---------------------------------------------------------------------------
 # Setup
@@ -30,7 +30,7 @@ def sample_tool():
 # ---------------------------------------------------------------------------
 registry = Registry(
     name="Agno Registry",
-    tools=[WebSearchTools(backend="duckduckgo"), sample_tool, CalculatorTools()],
+    tools=[DuckDuckGoTools(), sample_tool, CalculatorTools()],
     models=[
         OpenAIChat(id="gpt-5-mini"),
         OpenAIChat(id="gpt-5"),

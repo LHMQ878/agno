@@ -1,11 +1,8 @@
 """
 CodingTools: All 7 Tools Enabled
 =================================
-Enable all tools including the write tools (edit_file, write_file, run_shell)
+Enable all tools including the exploration tools (grep, find, ls)
 by setting all=True or enabling them individually.
-
-Default read-only tools: read_file, run_grep, run_find, run_ls
-Opt-in write tools: edit_file, write_file, run_shell
 """
 
 from agno.agent import Agent
