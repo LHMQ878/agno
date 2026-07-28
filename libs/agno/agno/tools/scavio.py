@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any, Callable, List, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_error
@@ -46,31 +46,22 @@ class ScavioTools(Toolkit):
     INSTAGRAM_USER_FOLLOWERS = "instagram_user_followers"
     INSTAGRAM_USER_FOLLOWINGS = "instagram_user_followings"
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        include_tools: Optional[Sequence[str]] = None,
-        exclude_tools: Optional[Sequence[str]] = None,
-        **kwargs,
-    ):
+    def __init__(self, api_key: Optional[str] = None, **kwargs):
         """Initialize ScavioTools, a unified search toolkit for AI agents.
 
         Scavio provides real-time search across Google, YouTube, Amazon, Walmart,
-        Reddit, TikTok, and Instagram. Use include_tools/exclude_tools to select
-        which tools to register.
+        Reddit, TikTok, and Instagram. Use include_tools/exclude_tools to filter.
 
         Args:
             api_key: Scavio API key. Falls back to SCAVIO_API_KEY env var.
-            include_tools: List of tool names to include. If None, all tools are included.
-                Use class constants like ScavioTools.GOOGLE_SEARCH or strings like "google_search".
-            exclude_tools: List of tool names to exclude. Applied after include_tools.
+            **kwargs: Passed to Toolkit. Use include_tools/exclude_tools to filter.
 
         Example:
             # Include only Google and YouTube search
             ScavioTools(include_tools=[ScavioTools.GOOGLE_SEARCH, ScavioTools.YOUTUBE_SEARCH])
 
             # Include all except TikTok tools
-            ScavioTools(exclude_tools=["tiktok_profile", "tiktok_user_posts", ...])
+            ScavioTools(exclude_tools=["tiktok_profile", "tiktok_user_posts"])
         """
         self.api_key = api_key or getenv("SCAVIO_API_KEY")
         if not self.api_key:
@@ -78,52 +69,41 @@ class ScavioTools(Toolkit):
 
         self.client: ScavioClient = ScavioClient(api_key=self.api_key)
 
-        # Map tool names to methods
-        all_tools = {
-            self.GOOGLE_SEARCH: self.google_search,
-            self.AMAZON_SEARCH: self.amazon_search,
-            self.AMAZON_PRODUCT: self.amazon_product,
-            self.WALMART_SEARCH: self.walmart_search,
-            self.WALMART_PRODUCT: self.walmart_product,
-            self.YOUTUBE_SEARCH: self.youtube_search,
-            self.YOUTUBE_METADATA: self.youtube_metadata,
-            self.REDDIT_SEARCH: self.reddit_search,
-            self.REDDIT_POST: self.reddit_post,
-            self.TIKTOK_PROFILE: self.tiktok_profile,
-            self.TIKTOK_USER_POSTS: self.tiktok_user_posts,
-            self.TIKTOK_VIDEO: self.tiktok_video,
-            self.TIKTOK_VIDEO_COMMENTS: self.tiktok_video_comments,
-            self.TIKTOK_COMMENT_REPLIES: self.tiktok_comment_replies,
-            self.TIKTOK_SEARCH_VIDEOS: self.tiktok_search_videos,
-            self.TIKTOK_SEARCH_USERS: self.tiktok_search_users,
-            self.TIKTOK_HASHTAG: self.tiktok_hashtag,
-            self.TIKTOK_HASHTAG_VIDEOS: self.tiktok_hashtag_videos,
-            self.TIKTOK_USER_FOLLOWERS: self.tiktok_user_followers,
-            self.TIKTOK_USER_FOLLOWINGS: self.tiktok_user_followings,
-            self.INSTAGRAM_PROFILE: self.instagram_profile,
-            self.INSTAGRAM_USER_POSTS: self.instagram_user_posts,
-            self.INSTAGRAM_USER_REELS: self.instagram_user_reels,
-            self.INSTAGRAM_USER_TAGGED: self.instagram_user_tagged,
-            self.INSTAGRAM_USER_STORIES: self.instagram_user_stories,
-            self.INSTAGRAM_POST: self.instagram_post,
-            self.INSTAGRAM_POST_COMMENTS: self.instagram_post_comments,
-            self.INSTAGRAM_COMMENT_REPLIES: self.instagram_comment_replies,
-            self.INSTAGRAM_SEARCH_USERS: self.instagram_search_users,
-            self.INSTAGRAM_SEARCH_HASHTAGS: self.instagram_search_hashtags,
-            self.INSTAGRAM_USER_FOLLOWERS: self.instagram_user_followers,
-            self.INSTAGRAM_USER_FOLLOWINGS: self.instagram_user_followings,
-        }
-
-        # Build tool list based on include/exclude
-        if include_tools is not None:
-            tool_names = set(include_tools)
-        else:
-            tool_names = set(all_tools.keys())
-
-        if exclude_tools is not None:
-            tool_names -= set(exclude_tools)
-
-        tools: List[Callable] = [all_tools[name] for name in all_tools if name in tool_names]
+        # Register all tools - base Toolkit handles include_tools/exclude_tools filtering
+        tools: List[Callable] = [
+            self.google_search,
+            self.amazon_search,
+            self.amazon_product,
+            self.walmart_search,
+            self.walmart_product,
+            self.youtube_search,
+            self.youtube_metadata,
+            self.reddit_search,
+            self.reddit_post,
+            self.tiktok_profile,
+            self.tiktok_user_posts,
+            self.tiktok_video,
+            self.tiktok_video_comments,
+            self.tiktok_comment_replies,
+            self.tiktok_search_videos,
+            self.tiktok_search_users,
+            self.tiktok_hashtag,
+            self.tiktok_hashtag_videos,
+            self.tiktok_user_followers,
+            self.tiktok_user_followings,
+            self.instagram_profile,
+            self.instagram_user_posts,
+            self.instagram_user_reels,
+            self.instagram_user_tagged,
+            self.instagram_user_stories,
+            self.instagram_post,
+            self.instagram_post_comments,
+            self.instagram_comment_replies,
+            self.instagram_search_users,
+            self.instagram_search_hashtags,
+            self.instagram_user_followers,
+            self.instagram_user_followings,
+        ]
 
         super().__init__(name="scavio", tools=tools, **kwargs)
 
