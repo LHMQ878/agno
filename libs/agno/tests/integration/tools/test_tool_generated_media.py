@@ -5,7 +5,7 @@ from agno.db.base import SessionType
 from agno.db.in_memory.in_memory_db import InMemoryDb
 from agno.media import Audio, Image
 from agno.models.openai.chat import OpenAIChat
-from agno.tools.openai import OpenAITools
+from agno.tools.models.openai import OpenAITools
 
 # Provider-availability failures (model brownouts/retirement windows, billing,
 # quota, auth) say nothing about our code and must not red the build. Contract

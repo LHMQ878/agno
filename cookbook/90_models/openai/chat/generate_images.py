@@ -7,7 +7,7 @@ Cookbook example for `openai/chat/generate_images.py`.
 
 from agno.agent import Agent, RunOutput
 from agno.models.openai import OpenAIChat
-from agno.tools.openai import OpenAITools
+from agno.tools.models.openai import OpenAITools
 
 # ---------------------------------------------------------------------------
 # Create Agent

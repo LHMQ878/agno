@@ -8,7 +8,7 @@ Please install dependencies using:.
 from agno.agent import Agent
 from agno.models.openai import OpenAIResponses
 from agno.tools.moviepy_video import MoviePyVideoTools
-from agno.tools.openai import OpenAITools
+from agno.tools.models.openai import OpenAITools
 
 video_tools = MoviePyVideoTools(
     enable_process_video=True, enable_generate_captions=True, enable_embed_captions=True
