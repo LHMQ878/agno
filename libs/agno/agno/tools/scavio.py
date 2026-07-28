@@ -15,31 +15,33 @@ class ScavioTools(Toolkit):
     def __init__(
         self,
         api_key: Optional[str] = None,
-        google_search: bool = True,
-        amazon_tools: bool = True,
-        walmart_tools: bool = True,
-        youtube_tools: bool = True,
-        reddit_tools: bool = True,
-        tiktok_tools: bool = True,
-        instagram_tools: bool = True,
+        enable_google: bool = True,
+        enable_amazon: bool = True,
+        enable_walmart: bool = True,
+        enable_youtube: bool = True,
+        enable_reddit: bool = True,
+        enable_tiktok: bool = True,
+        enable_instagram: bool = True,
         all: bool = False,
         **kwargs,
     ):
         """Initialize ScavioTools, a unified search toolkit for AI agents.
 
-        Scavio provides real-time search across Google, YouTube, Amazon, Walmart,
-        Reddit, TikTok, and Instagram. Each provider is gated by a boolean flag.
+        Scavio is a single Search API over Google, YouTube, Amazon, Walmart, Reddit,
+        TikTok, and Instagram. Each provider is gated by an ``enable_*`` flag so you can
+        expose only the tools your agent needs.
 
         Args:
-            api_key: Scavio API key. Falls back to SCAVIO_API_KEY env var.
-            google_search: Enable google_search tool.
-            amazon_tools: Enable amazon_search and amazon_product tools.
-            walmart_tools: Enable walmart_search and walmart_product tools.
-            youtube_tools: Enable youtube_search and youtube_metadata tools.
-            reddit_tools: Enable reddit_search and reddit_post tools.
-            tiktok_tools: Enable TikTok tools (profile, posts, video, comments, search, hashtag, followers).
-            instagram_tools: Enable Instagram tools (profile, posts, reels, stories, comments, search, followers).
-            all: Enable all tools.
+            api_key: Scavio API key. If not provided, the ``SCAVIO_API_KEY`` env var is used.
+            enable_google: Register the Google web search tool. Defaults to True.
+            enable_amazon: Register the Amazon search and product tools. Defaults to True.
+            enable_walmart: Register the Walmart search and product tools. Defaults to True.
+            enable_youtube: Register the YouTube search and metadata tools. Defaults to True.
+            enable_reddit: Register the Reddit search and post tools. Defaults to True.
+            enable_tiktok: Register the TikTok tools. Defaults to True.
+            enable_instagram: Register the Instagram tools. Defaults to True.
+            all: Register every available tool, ignoring the individual flags. Defaults to False.
+            **kwargs: Additional arguments passed to Toolkit.
         """
         self.api_key = api_key or getenv("SCAVIO_API_KEY")
         if not self.api_key:
@@ -47,23 +49,23 @@ class ScavioTools(Toolkit):
 
         self.client: ScavioClient = ScavioClient(api_key=self.api_key)
 
-        tools: List[Callable] = []
+        tools: List[Any] = []
 
-        if all or google_search:
+        if all or enable_google:
             tools.append(self.google_search)
-        if all or amazon_tools:
+        if all or enable_amazon:
             tools.append(self.amazon_search)
             tools.append(self.amazon_product)
-        if all or walmart_tools:
+        if all or enable_walmart:
             tools.append(self.walmart_search)
             tools.append(self.walmart_product)
-        if all or youtube_tools:
+        if all or enable_youtube:
             tools.append(self.youtube_search)
             tools.append(self.youtube_metadata)
-        if all or reddit_tools:
+        if all or enable_reddit:
             tools.append(self.reddit_search)
             tools.append(self.reddit_post)
-        if all or tiktok_tools:
+        if all or enable_tiktok:
             tools.append(self.tiktok_profile)
             tools.append(self.tiktok_user_posts)
             tools.append(self.tiktok_video)
@@ -75,7 +77,7 @@ class ScavioTools(Toolkit):
             tools.append(self.tiktok_hashtag_videos)
             tools.append(self.tiktok_user_followers)
             tools.append(self.tiktok_user_followings)
-        if all or instagram_tools:
+        if all or enable_instagram:
             tools.append(self.instagram_profile)
             tools.append(self.instagram_user_posts)
             tools.append(self.instagram_user_reels)
