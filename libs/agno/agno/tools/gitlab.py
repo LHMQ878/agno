@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 from urllib.parse import quote_plus
 
 from agno.tools import Toolkit
@@ -37,8 +37,8 @@ class GitlabTools(Toolkit):
         self.client: Gitlab = self._create_client()
         self._async_client: Optional[httpx.AsyncClient] = None
 
-        tools: List[Any] = []
-        async_tools: List[tuple[Any, str]] = []
+        tools: List[Callable] = []
+        async_tools: List[tuple[Callable, str]] = []
 
         if all or list_projects:
             tools.append(self.list_projects)
