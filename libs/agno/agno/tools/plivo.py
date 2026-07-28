@@ -1,7 +1,7 @@
 import json
 import re
 from os import getenv
-from typing import Any, Dict, List, Optional
+from typing import Callable, List, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_error, log_info
@@ -19,8 +19,8 @@ class PlivoTools(Toolkit):
         auth_id: Optional[str] = None,
         auth_token: Optional[str] = None,
         debug: bool = False,
-        send_sms: bool = True,
-        make_call: bool = True,
+        send_sms: bool = False,
+        make_call: bool = False,
         get_call_details: bool = True,
         list_messages: bool = True,
         list_calls: bool = True,
@@ -61,7 +61,7 @@ class PlivoTools(Toolkit):
             logging.basicConfig()
             logging.getLogger("plivo").setLevel(logging.DEBUG)
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or send_sms:
             tools.append(self.send_sms)
         if all or make_call:
@@ -79,7 +79,14 @@ class PlivoTools(Toolkit):
 
     @staticmethod
     def validate_phone_number(phone: str) -> bool:
-        """Validate E.164 phone number format"""
+        """Validate E.164 phone number format.
+
+        Args:
+            phone: Phone number to validate
+
+        Returns:
+            True if valid E.164 format, False otherwise.
+        """
         return bool(re.match(r"^\+[1-9]\d{1,14}$", phone))
 
     def send_sms(self, to: str, from_: str, body: str) -> str:
@@ -142,38 +149,37 @@ class PlivoTools(Toolkit):
             log_error(f"Failed to place call to {to}")
             return json.dumps({"error": f"Error placing call: {str(e)}"})
 
-    def get_call_details(self, call_uuid: str) -> Dict[str, Any]:
-        """
-        Get details about a specific call.
+    def get_call_details(self, call_uuid: str) -> str:
+        """Get details about a specific call.
 
         Args:
             call_uuid: The UUID of the call to look up
 
         Returns:
-            Dict: Call details including state, duration, etc.
+            JSON with call details including to, from, state, duration, direction,
+            initiation_time, answer_time, and total_amount.
         """
         try:
             call = self.client.calls.get(call_uuid)
             log_info(f"Fetched details for call UUID: {call_uuid}")
-            return {
-                "to": getattr(call, "to_number", None),
-                "from": getattr(call, "from_number", None),
-                "state": getattr(call, "call_state", None),
-                "duration": getattr(call, "call_duration", None),
-                "direction": getattr(call, "call_direction", None),
-                "initiation_time": getattr(call, "initiation_time", None),
-                "answer_time": getattr(call, "answer_time", None),
-                "total_amount": getattr(call, "total_amount", None),
-            }
+            return json.dumps(
+                {
+                    "to": getattr(call, "to_number", None),
+                    "from": getattr(call, "from_number", None),
+                    "state": getattr(call, "call_state", None),
+                    "duration": getattr(call, "call_duration", None),
+                    "direction": getattr(call, "call_direction", None),
+                    "initiation_time": getattr(call, "initiation_time", None),
+                    "answer_time": getattr(call, "answer_time", None),
+                    "total_amount": getattr(call, "total_amount", None),
+                }
+            )
         except PlivoRestError as e:
             log_error(f"Failed to fetch call details for UUID {call_uuid}")
-            return {"error": str(e)}
+            return json.dumps({"error": str(e)})
 
-    def list_messages(
-        self, limit: int = 20, offset: int = 0, message_direction: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        List recent messages.
+    def list_messages(self, limit: int = 20, offset: int = 0, message_direction: Optional[str] = None) -> str:
+        """List recent messages.
 
         Args:
             limit: Maximum number of messages to return (capped at 20, the Plivo per-request maximum)
@@ -181,7 +187,8 @@ class PlivoTools(Toolkit):
             message_direction: Filter by direction, 'inbound' or 'outbound' (default all)
 
         Returns:
-            List[Dict]: List of message details
+            JSON with list of messages, each containing message_uuid, to, from, state,
+            direction, type, and message_time.
         """
         try:
             limit = max(1, min(limit, 20))
@@ -189,7 +196,7 @@ class PlivoTools(Toolkit):
             if message_direction is not None:
                 message_direction = message_direction.strip() or None
             if message_direction is not None and message_direction not in ("inbound", "outbound"):
-                return [{"error": "message_direction must be 'inbound' or 'outbound'"}]
+                return json.dumps({"error": "message_direction must be 'inbound' or 'outbound'"})
             messages = []
             for message in self.client.messages.list(limit=limit, offset=offset, message_direction=message_direction):
                 messages.append(
@@ -204,16 +211,13 @@ class PlivoTools(Toolkit):
                     }
                 )
             log_info(f"Retrieved {len(messages)} messages")
-            return messages
+            return json.dumps({"messages": messages, "count": len(messages)})
         except PlivoRestError as e:
             log_error("Failed to list messages")
-            return [{"error": str(e)}]
+            return json.dumps({"error": str(e)})
 
-    def list_calls(
-        self, limit: int = 20, offset: int = 0, call_direction: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        List recent calls.
+    def list_calls(self, limit: int = 20, offset: int = 0, call_direction: Optional[str] = None) -> str:
+        """List recent calls.
 
         Args:
             limit: Maximum number of calls to return (capped at 20, the Plivo per-request maximum)
@@ -221,7 +225,8 @@ class PlivoTools(Toolkit):
             call_direction: Filter by direction, 'inbound' or 'outbound' (default all)
 
         Returns:
-            List[Dict]: List of call details
+            JSON with list of calls, each containing call_uuid, to, from, state,
+            duration, direction, and end_time.
         """
         try:
             limit = max(1, min(limit, 20))
@@ -229,7 +234,7 @@ class PlivoTools(Toolkit):
             if call_direction is not None:
                 call_direction = call_direction.strip() or None
             if call_direction is not None and call_direction not in ("inbound", "outbound"):
-                return [{"error": "call_direction must be 'inbound' or 'outbound'"}]
+                return json.dumps({"error": "call_direction must be 'inbound' or 'outbound'"})
             calls = []
             for call in self.client.calls.list(limit=limit, offset=offset, call_direction=call_direction):
                 calls.append(
@@ -244,33 +249,34 @@ class PlivoTools(Toolkit):
                     }
                 )
             log_info(f"Retrieved {len(calls)} calls")
-            return calls
+            return json.dumps({"calls": calls, "count": len(calls)})
         except PlivoRestError as e:
             log_error("Failed to list calls")
-            return [{"error": str(e)}]
+            return json.dumps({"error": str(e)})
 
-    def lookup_number(self, number: str) -> Dict[str, Any]:
-        """
-        Look up carrier and line-type information for a phone number.
+    def lookup_number(self, number: str) -> str:
+        """Look up carrier and line-type information for a phone number.
 
         Args:
             number: Phone number to look up (E.164 format)
 
         Returns:
-            Dict: Number metadata including country, carrier, and line type, or error message
+            JSON with number metadata including number, country, format, and carrier.
         """
         try:
             if not self.validate_phone_number(number):
-                return {"error": "'number' must be in E.164 format (e.g., +1234567890)"}
+                return json.dumps({"error": "'number' must be in E.164 format (e.g., +1234567890)"})
 
             result = self.client.lookup.get(number)
             log_info(f"Looked up number: {number}")
-            return {
-                "number": getattr(result, "phone_number", None),
-                "country": getattr(result, "country", None),
-                "format": getattr(result, "format", None),
-                "carrier": getattr(result, "carrier", None),
-            }
+            return json.dumps(
+                {
+                    "number": getattr(result, "phone_number", None),
+                    "country": getattr(result, "country", None),
+                    "format": getattr(result, "format", None),
+                    "carrier": getattr(result, "carrier", None),
+                }
+            )
         except PlivoRestError as e:
             log_error(f"Failed to look up number {number}")
-            return {"error": str(e)}
+            return json.dumps({"error": str(e)})
