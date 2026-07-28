@@ -1,4 +1,5 @@
-from typing import Any, Dict, List
+import json
+from typing import Callable, Dict, List
 
 from agno.tools import Toolkit
 from agno.utils.log import log_debug, logger
@@ -117,34 +118,43 @@ class PandasTools(Toolkit):
 
     def __init__(
         self,
-        create_pandas_dataframe: bool = True,
-        run_dataframe_operation: bool = True,
+        create_pandas_dataframe: bool = False,
+        run_dataframe_operation: bool = False,
+        all: bool = False,
         **kwargs,
     ):
+        """Initialize Pandas toolkit for dataframe operations.
+
+        Args:
+            create_pandas_dataframe: Enable the create_pandas_dataframe tool. Disabled by default (can load arbitrary files).
+            run_dataframe_operation: Enable the run_dataframe_operation tool. Disabled by default (runs operations).
+            all: Enable all tools.
+        """
         self.dataframes: Dict[str, pd.DataFrame] = {}
 
-        tools: List[Any] = []
-        if create_pandas_dataframe:
+        tools: List[Callable] = []
+        if all or create_pandas_dataframe:
             tools.append(self.create_pandas_dataframe)
-        if run_dataframe_operation:
+        if all or run_dataframe_operation:
             tools.append(self.run_dataframe_operation)
 
         super().__init__(name="pandas_tools", tools=tools, **kwargs)
 
     def create_pandas_dataframe(
-        self, dataframe_name: str, create_using_function: str, function_parameters: Dict[str, Any]
+        self, dataframe_name: str, create_using_function: str, function_parameters: Dict[str, object]
     ) -> str:
-        """Creates a pandas dataframe named `dataframe_name` by running a function `create_using_function` with the parameters `function_parameters`.
-        Returns the created dataframe name as a string if successful, otherwise returns an error message.
+        """Create a pandas dataframe using a pandas function.
 
-        For Example:
-        - To create a dataframe `csv_data` by reading a CSV file, use: {"dataframe_name": "csv_data", "create_using_function": "read_csv", "function_parameters": {"filepath_or_buffer": "data.csv"}}
-        - To create a dataframe `csv_data` by reading a JSON file, use: {"dataframe_name": "json_data", "create_using_function": "read_json", "function_parameters": {"path_or_buf": "data.json"}}
+        Args:
+            dataframe_name: Name to assign to the created dataframe.
+            create_using_function: Pandas function to use (e.g., read_csv, read_json).
+            function_parameters: Parameters to pass to the function.
 
-        :param dataframe_name: The name of the dataframe to create.
-        :param create_using_function: The function to use to create the dataframe.
-        :param function_parameters: The parameters to pass to the function.
-        :return: The name of the created dataframe if successful, otherwise an error message.
+        Returns:
+            JSON with dataframe_name on success or error message.
+
+        Example:
+            create_pandas_dataframe("csv_data", "read_csv", {"filepath_or_buffer": "data.csv"})
         """
         try:
             log_debug(f"Creating dataframe: {dataframe_name}")
@@ -152,65 +162,60 @@ class PandasTools(Toolkit):
             log_debug(f"With parameters: {function_parameters}")
 
             if dataframe_name in self.dataframes:
-                return f"Dataframe already exists: {dataframe_name}"
+                return json.dumps({"error": f"Dataframe already exists: {dataframe_name}"})
 
-            # Validate function against allowlist to prevent RCE (e.g., read_pickle)
             if create_using_function not in self.SAFE_CREATE_FUNCTIONS:
-                return f"Error: Function '{create_using_function}' is not allowed. Use one of: {', '.join(sorted(self.SAFE_CREATE_FUNCTIONS))}"
+                return json.dumps({"error": f"Function '{create_using_function}' not allowed. Use: {', '.join(sorted(self.SAFE_CREATE_FUNCTIONS))}"})
 
-            # Create the dataframe
             dataframe = getattr(pd, create_using_function)(**function_parameters)
             if dataframe is None:
-                return f"Error creating dataframe: {dataframe_name}"
+                return json.dumps({"error": f"Error creating dataframe: {dataframe_name}"})
             if not isinstance(dataframe, pd.DataFrame):
-                return f"Error creating dataframe: {dataframe_name}"
+                return json.dumps({"error": f"Error creating dataframe: {dataframe_name}"})
             if dataframe.empty:
-                return f"Dataframe is empty: {dataframe_name}"
+                return json.dumps({"error": f"Dataframe is empty: {dataframe_name}"})
             self.dataframes[dataframe_name] = dataframe
             log_debug(f"Created dataframe: {dataframe_name}")
-            return dataframe_name
+            return json.dumps({"dataframe_name": dataframe_name, "shape": list(dataframe.shape)})
         except Exception as e:
             logger.exception("Error creating dataframe")
-            return f"Error creating dataframe: {e}"
+            return json.dumps({"error": f"Error creating dataframe: {e}"})
 
-    def run_dataframe_operation(self, dataframe_name: str, operation: str, operation_parameters: Dict[str, Any]) -> str:
-        """Runs an operation `operation` on a dataframe `dataframe_name` with the parameters `operation_parameters`.
-        Returns the result of the operation as a string if successful, otherwise returns an error message.
+    def run_dataframe_operation(self, dataframe_name: str, operation: str, operation_parameters: Dict[str, object]) -> str:
+        """Run an operation on a dataframe.
 
-        For Example:
-        - To get the first 5 rows of a dataframe `csv_data`, use: {"dataframe_name": "csv_data", "operation": "head", "operation_parameters": {"n": 5}}
-        - To get the last 5 rows of a dataframe `csv_data`, use: {"dataframe_name": "csv_data", "operation": "tail", "operation_parameters": {"n": 5}}
+        Args:
+            dataframe_name: Name of the dataframe to operate on.
+            operation: Operation to run (e.g., head, tail, describe).
+            operation_parameters: Parameters to pass to the operation.
 
-        :param dataframe_name: The name of the dataframe to run the operation on.
-        :param operation: The operation to run on the dataframe.
-        :param operation_parameters: The parameters to pass to the operation.
-        :return: The result of the operation if successful, otherwise an error message.
+        Returns:
+            JSON with result or error message.
+
+        Example:
+            run_dataframe_operation("csv_data", "head", {"n": 5})
         """
         try:
             log_debug(f"Running operation: {operation}")
             log_debug(f"On dataframe: {dataframe_name}")
             log_debug(f"With parameters: {operation_parameters}")
 
-            # Validate operation against allowlist
             if operation not in self.SAFE_OPERATIONS:
-                return f"Error: Operation '{operation}' is not allowed. Use one of: {', '.join(sorted(self.SAFE_OPERATIONS))}"
+                return json.dumps({"error": f"Operation '{operation}' not allowed. Use: {', '.join(sorted(self.SAFE_OPERATIONS))}"})
 
-            # Get the dataframe
             dataframe = self.dataframes.get(dataframe_name)
             if dataframe is None:
-                return f"Error: Dataframe '{dataframe_name}' not found"
+                return json.dumps({"error": f"Dataframe '{dataframe_name}' not found"})
 
-            # Run the operation
             result = getattr(dataframe, operation)(**operation_parameters)
-
             log_debug(f"Ran operation: {operation}")
+
             try:
-                try:
-                    return result.to_string()
-                except AttributeError:
-                    return str(result)
+                if hasattr(result, "to_string"):
+                    return json.dumps({"result": result.to_string()})
+                return json.dumps({"result": str(result)})
             except Exception:
-                return "Operation ran successfully"
+                return json.dumps({"status": "success"})
         except Exception as e:
             logger.exception("Error running operation")
-            return f"Error running operation: {e}"
+            return json.dumps({"error": f"Error running operation: {e}"})
