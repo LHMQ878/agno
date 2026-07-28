@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from agno.tools import Toolkit
 from agno.utils.log import log_error
@@ -65,7 +65,7 @@ class FirecrawlTools(Toolkit):
         self.app: FirecrawlApp = FirecrawlApp(api_key=self.api_key, api_url=api_url)
         self.search_params = search_params
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or scrape:
             tools.append(self.scrape_website)
         if all or crawl:
@@ -78,10 +78,13 @@ class FirecrawlTools(Toolkit):
         super().__init__(name="firecrawl_tools", tools=tools, **kwargs)
 
     def scrape_website(self, url: str) -> str:
-        """Use this function to scrape a website using Firecrawl.
+        """Scrape a website using Firecrawl.
 
         Args:
-            url (str): The URL to scrape.
+            url: The URL to scrape.
+
+        Returns:
+            JSON with scraped content.
         """
         params = {}
         if self.formats:
@@ -91,14 +94,14 @@ class FirecrawlTools(Toolkit):
         return json.dumps(scrape_result.model_dump(), cls=CustomJSONEncoder)
 
     def crawl_website(self, url: str, limit: Optional[int] = None) -> str:
-        """Use this function to Crawls a website using Firecrawl.
+        """Crawl a website using Firecrawl.
 
         Args:
-            url (str): The URL to crawl.
-            limit (int, optional): The maximum number of pages to crawl. Defaults to the limit set on the toolkit.
+            url: The URL to crawl.
+            limit: Maximum pages to crawl. Defaults to toolkit limit.
 
         Returns:
-            The results of the crawling.
+            JSON with crawl results.
         """
         params: Dict[str, Any] = {}
         if limit is not None:
@@ -114,21 +117,26 @@ class FirecrawlTools(Toolkit):
         return json.dumps(crawl_result.model_dump(), cls=CustomJSONEncoder)
 
     def map_website(self, url: str) -> str:
-        """Use this function to Map a website using Firecrawl.
+        """Map a website using Firecrawl.
 
         Args:
-            url (str): The URL to map.
+            url: The URL to map.
 
+        Returns:
+            JSON with site map.
         """
         map_result = self.app.map(url)
         return json.dumps(map_result.model_dump(), cls=CustomJSONEncoder)
 
-    def search_web(self, query: str, limit: Optional[int] = None):
-        """Use this function to search for the web using Firecrawl.
+    def search_web(self, query: str, limit: Optional[int] = None) -> str:
+        """Search the web using Firecrawl.
 
         Args:
-            query (str): The query to search for.
-            limit (int, optional): The maximum number of results to return. Defaults to the limit set on the toolkit.
+            query: The search query.
+            limit: Maximum results to return. Defaults to toolkit limit.
+
+        Returns:
+            JSON with search results.
         """
         params: Dict[str, Any] = {}
         if self.limit is not None:
@@ -147,6 +155,6 @@ class FirecrawlTools(Toolkit):
             if search_result.success:
                 return json.dumps(search_result.data, cls=CustomJSONEncoder)
             else:
-                return f"Error searching with the Firecrawl tool: {search_result.error}"
+                return json.dumps({"error": f"Firecrawl search failed: {search_result.error}"})
         else:
             return json.dumps(search_result.model_dump(), cls=CustomJSONEncoder)
