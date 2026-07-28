@@ -1,6 +1,6 @@
 import uuid
 from os import getenv
-from typing import Any, List, Optional, Union
+from typing import Callable, List, Optional, Union
 
 import httpx
 
@@ -33,20 +33,20 @@ class GiphyTools(Toolkit):
 
         self.limit: int = limit
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if search_gifs:
             tools.append(self.search_gifs)
 
         super().__init__(name="giphy_tools", tools=tools, **kwargs)
 
     def search_gifs(self, agent: Union[Agent, Team], query: str) -> ToolResult:
-        """Find a GIPHY gif
+        """Search for GIFs on GIPHY.
 
         Args:
-            query (str): A text description of the required gif.
+            query: Text description of the GIF to find.
 
         Returns:
-            ToolResult: Contains the found GIF images or error message.
+            ToolResult with found GIF images.
         """
 
         base_url = "https://api.giphy.com/v1/gifs/search"
