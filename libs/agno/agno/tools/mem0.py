@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from typing import Any, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from agno.run import RunContext
 from agno.tools import Toolkit
@@ -24,11 +24,25 @@ class Mem0Tools(Toolkit):
         add_memory: bool = True,
         search_memory: bool = True,
         get_all_memories: bool = True,
-        delete_all_memories: bool = True,
+        delete_all_memories: bool = False,
         all: bool = False,
         **kwargs,
     ):
-        tools: List[Any] = []
+        """Initialize Mem0 memory toolkit.
+
+        Args:
+            config: Custom Mem0 config dict for self-hosted. Ignored if api_key set.
+            api_key: Mem0 Platform API key. Defaults to MEM0_API_KEY env var.
+            host: Mem0 Platform host URL. Defaults to MEM0_HOST env var.
+            user_id: Default user ID for memory operations.
+            infer: Whether to use Mem0's inference when adding memories.
+            add_memory: Enable the add_memory tool.
+            search_memory: Enable the search_memory tool.
+            get_all_memories: Enable the get_all_memories tool.
+            delete_all_memories: Enable the delete_all_memories tool. Disabled by default (destructive).
+            all: Enable all tools.
+        """
+        tools: List[Callable] = []
         if all or add_memory:
             tools.append(self.add_memory)
         if all or search_memory:
@@ -62,12 +76,8 @@ class Mem0Tools(Toolkit):
             log_error(f"Failed to initialize Mem0 client: {str(e)}")
             raise ConnectionError("Failed to initialize Mem0 client. Ensure API keys/config are set.") from e
 
-    def _get_user_id(
-        self,
-        method_name: str,
-        run_context: RunContext,
-    ) -> str:
-        """Resolve the user ID"""
+    def _get_user_id(self, method_name: str, run_context: RunContext) -> str:
+        """Resolve the user ID from toolkit default or run context."""
         resolved_user_id = self.user_id
         if not resolved_user_id:
             try:
@@ -86,13 +96,13 @@ class Mem0Tools(Toolkit):
         content: Union[str, Dict[str, str]],
     ) -> str:
         """Add facts to the user's memory.
+
         Args:
-            content(Union[str, Dict[str, str]]): The facts that should be stored.
-            Example:
-                content = "I live in NYC"
-                content = {"Name": "John", "Age": 30, "Location": "New York"}
+            run_context: The run context (auto-injected).
+            content: Facts to store. Can be a string ("I live in NYC") or dict.
+
         Returns:
-            str: JSON-encoded Mem0 response or an error message.
+            JSON with Mem0 response or error.
         """
 
         resolved_user_id = self._get_user_id("add_memory", run_context=run_context)
@@ -121,7 +131,15 @@ class Mem0Tools(Toolkit):
         run_context: RunContext,
         query: str,
     ) -> str:
-        """Semantic search for *query* across the user's stored memories."""
+        """Semantic search across the user's stored memories.
+
+        Args:
+            run_context: The run context (auto-injected).
+            query: Search query string.
+
+        Returns:
+            JSON list of matching memories.
+        """
 
         resolved_user_id = self._get_user_id("search_memory", run_context=run_context)
         if isinstance(resolved_user_id, str) and resolved_user_id.startswith("Error in search_memory:"):
@@ -149,7 +167,14 @@ class Mem0Tools(Toolkit):
             return json.dumps({"error": f"Error searching memory: {e}"})
 
     def get_all_memories(self, run_context: RunContext) -> str:
-        """Return **all** memories for the current user as a JSON string."""
+        """Return all memories for the current user.
+
+        Args:
+            run_context: The run context (auto-injected).
+
+        Returns:
+            JSON list of all user memories.
+        """
 
         resolved_user_id = self._get_user_id("get_all_memories", run_context=run_context)
         if isinstance(resolved_user_id, str) and resolved_user_id.startswith("Error in get_all_memories:"):
@@ -175,7 +200,14 @@ class Mem0Tools(Toolkit):
             return json.dumps({"error": f"Error getting all memories: {e}"})
 
     def delete_all_memories(self, run_context: RunContext) -> str:
-        """Delete *all* memories associated with the current user"""
+        """Delete all memories for the current user.
+
+        Args:
+            run_context: The run context (auto-injected).
+
+        Returns:
+            JSON with status and message on success.
+        """
 
         resolved_user_id = self._get_user_id("delete_all_memories", run_context=run_context)
         if isinstance(resolved_user_id, str) and resolved_user_id.startswith("Error in delete_all_memories:"):
