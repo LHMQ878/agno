@@ -22,16 +22,16 @@ class OpenCVTools(Toolkit):
 
     Args:
         show_preview: Show live camera preview window during capture.
-        capture_image: Register the capture_image tool.
-        capture_video: Register the capture_video tool.
+        capture_image: Register the capture_image tool. Defaults to False (opt-in).
+        capture_video: Register the capture_video tool. Defaults to False (opt-in).
         all: Register all tools regardless of individual flags.
     """
 
     def __init__(
         self,
         show_preview: bool = False,
-        capture_image: bool = True,
-        capture_video: bool = True,
+        capture_image: bool = False,
+        capture_video: bool = False,
         all: bool = False,
         **kwargs,
     ):
