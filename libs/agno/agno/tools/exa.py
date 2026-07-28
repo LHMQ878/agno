@@ -1,10 +1,10 @@
 import json
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from os import getenv
-from typing import Any, Callable, Dict, List, Literal, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from agno.tools import Toolkit
-from agno.utils.log import log_debug, log_error, log_info, logger
+from agno.utils.log import log_error, log_info, logger
 
 try:
     from exa_py import Exa
@@ -67,7 +67,6 @@ class ExaTools(Toolkit):
         show_results: bool = False,
         model: Optional[str] = None,
         timeout: int = 30,
-        research_model: Literal["exa-research", "exa-research-pro"] = "exa-research",
         **kwargs,
     ):
         self.api_key = api_key or getenv("EXA_API_KEY")
@@ -93,7 +92,6 @@ class ExaTools(Toolkit):
         self.include_domains: Optional[List[str]] = include_domains
         self.exclude_domains: Optional[List[str]] = exclude_domains
         self.model: Optional[str] = model
-        self.research_model: Literal["exa-research", "exa-research-pro"] = research_model
 
         tools: List[Callable] = []
         if all or search:
@@ -311,62 +309,47 @@ class ExaTools(Toolkit):
             logger.exception("Failed to get answer from Exa")
             return json.dumps({"error": str(e)})
 
-    def research(
-        self,
-        instructions: str,
-        output_schema: Optional[Dict[str, Any]] = None,
-    ) -> str:
-        """Perform deep research on a topic.
+    def research(self, instructions: str, num_results: int = 10) -> str:
+        """Perform deep research on a topic using Exa's deep-reasoning search.
 
         Args:
-            instructions: Research instructions.
-            output_schema: JSON schema for structured output. Auto-infers if not provided.
+            instructions: Research instructions or query.
+            num_results: Number of results to return. Defaults to 10.
 
         Returns:
-            JSON research results with data and citations.
+            JSON research results with comprehensive analysis.
         """
         try:
-            log_debug(f"Creating research task with instructions: {instructions}")
-            log_debug(f"Output schema: {output_schema}")
+            if self.show_results:
+                log_info(f"Performing deep research for: {instructions}")
 
-            task_kwargs: Dict[str, Any] = {
-                "instructions": instructions,
-                "model": self.research_model,
+            search_kwargs: Dict[str, Any] = {
+                "text": True,
+                "summary": True,
+                "num_results": self.num_results or num_results,
+                "type": "deep-reasoning",
+                "start_crawl_date": self.start_crawl_date,
+                "end_crawl_date": self.end_crawl_date,
+                "start_published_date": self.start_published_date,
+                "end_published_date": self.end_published_date,
+                "include_domains": self.include_domains,
+                "exclude_domains": self.exclude_domains,
             }
+            search_kwargs = {k: v for k, v in search_kwargs.items() if v is not None}
 
-            if output_schema is not None:
-                task_kwargs["output_schema"] = output_schema
-            else:
-                task_kwargs["output_infer_schema"] = True
+            exa_results = self._execute_with_timeout(self.exa.search_and_contents, instructions, **search_kwargs)
 
-            task_result = self._execute_with_timeout(self.exa.research.create, **task_kwargs)  # type: ignore
-            task_id = task_result.id
-
+            parsed_results = self._parse_results(exa_results)
             if self.show_results:
-                log_info(f"Research task created with ID: {task_id}")
+                log_info(parsed_results)
 
-            # Step 2: Poll until complete (using default polling settings)
-            task = self.exa.research.poll_until_finished(task_id)  # type: ignore
-
-            # Step 3: Format and return results
-            result: Dict[str, Any] = {"data": task.data, "citations": {}}
-
-            # Process citations by field
-            for field, sources in task.citations.items():
-                result["citations"][field] = [
-                    {"url": source.url, "title": source.title, "id": source.id} for source in sources
-                ]
-
-            if self.show_results:
-                log_info("Research completed successfully")
-
-            return json.dumps(result, indent=4)
+            return parsed_results
 
         except TimeoutError:
-            error_msg = "Research task timed out"
+            error_msg = f"Research timed out after {self.timeout} seconds"
             log_error(error_msg)
-            return json.dumps({"error": error_msg}, indent=4)
+            return json.dumps({"error": error_msg})
         except Exception as e:
             error_msg = f"Research failed: {str(e)}"
             log_error(error_msg)
-            return json.dumps({"error": error_msg}, indent=4)
+            return json.dumps({"error": error_msg})
