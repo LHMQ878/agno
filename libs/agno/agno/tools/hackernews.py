@@ -1,5 +1,5 @@
 import json
-from typing import Any, List
+from typing import Callable, List
 
 import httpx
 
@@ -24,7 +24,7 @@ class HackerNewsTools(Toolkit):
         timeout: int = 30,
         **kwargs,
     ):
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if get_top_stories:
             tools.append(self.get_top_hackernews_stories)
         if get_user_details:
@@ -33,13 +33,13 @@ class HackerNewsTools(Toolkit):
         super().__init__(name="hackers_news", tools=tools, timeout=timeout, **kwargs)
 
     def get_top_hackernews_stories(self, num_stories: int = 10) -> str:
-        """Use this function to get top stories from Hacker News.
+        """Get top stories from Hacker News.
 
         Args:
-            num_stories (int): Number of stories to return. Defaults to 10.
+            num_stories: Number of stories to return. Defaults to 10.
 
         Returns:
-            str: JSON string of top stories.
+            JSON with top stories.
         """
 
         try:
@@ -68,13 +68,13 @@ class HackerNewsTools(Toolkit):
             return json.dumps({"error": f"Error fetching stories: {e}"})
 
     def get_user_details(self, username: str) -> str:
-        """Use this function to get the details of a Hacker News user using their username.
+        """Get details of a Hacker News user.
 
         Args:
-            username (str): Username of the user to get details for.
+            username: Username of the user to get details for.
 
         Returns:
-            str: JSON string of the user details.
+            JSON with user details including karma and submissions count.
         """
 
         try:
