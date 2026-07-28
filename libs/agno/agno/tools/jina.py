@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from typing import Any, Dict, List, Optional
+from typing import Callable, Dict, List, Optional
 
 import httpx
 from pydantic import BaseModel, Field, HttpUrl
@@ -41,7 +41,7 @@ class JinaReaderTools(Toolkit):
             search_query_content=search_query_content,
         )
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if read_url:
             tools.append(self.read_url)
         if search_query:
@@ -50,7 +50,14 @@ class JinaReaderTools(Toolkit):
         super().__init__(name="jina_reader_tools", tools=tools, **kwargs)
 
     def read_url(self, url: str) -> str:
-        """Reads a URL and returns the truncated content using Jina Reader API."""
+        """Read a URL and return content using Jina Reader API.
+
+        Args:
+            url: The URL to read.
+
+        Returns:
+            JSON with page content (truncated if needed).
+        """
         full_url = f"{self.config.base_url}{url}"
         try:
             response = httpx.get(full_url, headers=self._get_headers())
@@ -63,7 +70,14 @@ class JinaReaderTools(Toolkit):
             return json.dumps({"error": error_msg})
 
     def search_query(self, query: str) -> str:
-        """Performs a web search using Jina Reader API and returns the truncated results."""
+        """Search the web using Jina Reader API.
+
+        Args:
+            query: The search query.
+
+        Returns:
+            JSON with search results (truncated if needed).
+        """
         full_url = f"{self.config.search_url}"
         headers = self._get_headers()
         if not self.config.search_query_content:
