@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from agno.tools import Toolkit
 from agno.utils.log import log_info, logger
@@ -10,11 +10,11 @@ class VisualizationTools(Toolkit):
     def __init__(
         self,
         output_dir: str = "charts",
-        create_bar_chart: bool = True,
-        create_line_chart: bool = True,
-        create_pie_chart: bool = True,
-        create_scatter_plot: bool = True,
-        create_histogram: bool = True,
+        create_bar_chart: bool = False,
+        create_line_chart: bool = False,
+        create_pie_chart: bool = False,
+        create_scatter_plot: bool = False,
+        create_histogram: bool = False,
         all: bool = False,
         **kwargs,
     ):
@@ -39,7 +39,7 @@ class VisualizationTools(Toolkit):
 
         self.output_dir = output_dir
 
-        tools: List[Any] = []
+        tools: List[Callable] = []
         if all or create_bar_chart:
             tools.append(self.create_bar_chart)
         if all or create_line_chart:
