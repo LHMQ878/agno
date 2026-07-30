@@ -126,6 +126,24 @@ def _handle_agent_exception(a_exc: AgentRunException, additional_input: Optional
             m.stop_after_tool_call = True
 
 
+def _stop_run_visible_content(a_exc: AgentRunException) -> Optional[str]:
+    """Content to surface when an exception ends the run, or None when there is nothing to show.
+
+    A tool that stops the run declaratively (``@tool(stop_after_tool_call=True)``) gets
+    ``show_result=True`` for free, so its output is the run's final content. Stopping through
+    ``StopAgentRun`` reaches the same ``stop_after_tool_call`` break, but the message is only
+    appended to history — no model turn follows to speak for it, so the run ends with empty
+    content and the caller sees no reason for the stop.
+
+    Only ``stop_execution`` exceptions qualify. ``RetryAgentRun`` keeps the run going, and its
+    ``agent_message`` is guidance for the next model turn rather than output for the caller.
+    """
+    if not a_exc.stop_execution or a_exc.agent_message is None:
+        return None
+    content = a_exc.agent_message if isinstance(a_exc.agent_message, str) else a_exc.agent_message.content
+    return content if isinstance(content, str) and content else None
+
+
 @dataclass
 class Model(ABC):
     # ID of the model to use.
@@ -2163,6 +2181,10 @@ class Model(ABC):
             # If stop_execution is True, mark that we should stop after this tool call
             if a_exc.stop_execution:
                 stop_after_tool_call_from_exception = True
+                # No model turn follows a stopped run, so surface the reason as run content.
+                stop_content = _stop_run_visible_content(a_exc)
+                if stop_content is not None:
+                    yield ModelResponse(content=stop_content)
             # Set function call success to False if an exception occurred
         except RunCancelledException:
             raise
@@ -2851,6 +2873,10 @@ class Model(ABC):
                 # If stop_execution is True, mark that we should stop after this tool call
                 if a_exc.stop_execution:
                     stop_after_tool_call_from_exception = True
+                    # No model turn follows a stopped run, so surface the reason as run content.
+                    stop_content = _stop_run_visible_content(a_exc)
+                    if stop_content is not None:
+                        yield ModelResponse(content=stop_content)
                 # Set function call success to False if an exception occurred
                 function_call_success = False
 
